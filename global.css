@@ -1,0 +1,7 @@
+/* src/global.css */
+body {
+  overflow-y: scroll !important;
+  background-color: #fffbe6;
+  margin: 0;
+  padding: 0;
+}

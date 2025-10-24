@@ -1,0 +1,227 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+    page: {
+        flex: 1,
+        backgroundColor: '#fffbe6',
+        padding: 16,
+    },
+
+    // --- HEADER ---
+    header: {
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 20,
+    },
+    logoContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    logo: {
+        height: 60,
+        width: 60,
+        resizeMode: 'contain',
+    },
+    brandName: {
+        fontWeight: '700',
+        fontSize: 24,
+        color: '#2e7d32',
+    },
+    controls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: 8,
+        marginTop: 10,
+    },
+    button: {
+        backgroundColor: '#4caf50',
+        paddingVertical: 8,
+        paddingHorizontal: 14,
+        borderRadius: 6,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: '600',
+    },
+    activeButton: {
+        backgroundColor: '#ffc107',
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 6,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        width: 180,
+    },
+    logoutBtn: {
+        borderWidth: 2,
+        borderColor: '#d32f2f',
+        borderRadius: 6,
+        paddingVertical: 8,
+        paddingHorizontal: 14,
+        backgroundColor: '#fff',
+    },
+    logoutText: {
+        color: '#d32f2f',
+        fontWeight: '600',
+    },
+
+    // --- MAIN LAYOUT ---
+    main: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        gap: 16,
+    },
+
+    // --- ZONA DE TARJETAS ---
+    cardArea: {
+        flex: 3,
+        height: 500, // altura del contenedor con scroll
+    },
+    cardContent: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        paddingBottom: 20,
+        gap: 16,
+    },
+    card: {
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 8,
+        width: '47%', // dos columnas
+        padding: 12,
+        elevation: 3,
+    },
+    address: {
+        textAlign: 'center',
+        fontWeight: '600',
+        marginBottom: 8,
+    },
+    image: {
+        width: '100%',
+        height: 150,
+        borderRadius: 6,
+        marginBottom: 6,
+    },
+    status: {
+        textAlign: 'center',
+        color: '#444',
+        marginBottom: 8,
+    },
+    actions: {
+        alignItems: 'center',
+    },
+    seeBtn: {
+        backgroundColor: '#4caf50',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 6,
+    },
+    seeBtnText: {
+        color: '#fff',
+        fontWeight: '600',
+    },
+
+    // --- PANEL DE DETALLE ---
+    detail: {
+        flex: 0.8, // más angosto (≈25–30% del ancho total)
+        borderWidth: 2,
+        borderColor: '#cfcfcf',
+        borderRadius: 10,
+        padding: 16,
+        backgroundColor: '#fff',
+        height: 500,
+        justifyContent: 'center',
+    },
+    detailEmpty: {
+        color: '#777',
+        textAlign: 'center',
+    },
+    detailTitle: {
+        fontWeight: "700",
+        fontSize: 16,
+        textAlign: "center",
+        marginBottom: 8,
+    },
+    detailSubtitle: {
+        fontWeight: "600",
+        fontSize: 14,
+        marginTop: 12,
+        marginBottom: 6,
+    },
+    detailItem: {
+        fontSize: 13,
+        color: "#444",
+        marginLeft: 8,
+        marginBottom: 2,
+    },
+    footer: {
+        flexDirection: "row",
+        gap: 10,
+        marginTop: 16,
+    },
+    btnPrimary: {
+        backgroundColor: "#4caf50",
+        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 18,
+    },
+    btnText: {
+        color: "#fff",
+        fontWeight: "600",
+    },
+    btnGhost: {
+        backgroundColor: "transparent",
+        borderWidth: 2,
+        borderColor: "#d32f2f",
+        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 18,
+    },
+    btnGhostText: {
+        color: "#d32f2f",
+        fontWeight: "600",
+    },
+    // --- Modal de filtro ---
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.4)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    modalContainer: {
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        padding: 20,
+        width: "80%",
+        alignItems: "center",
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: "700",
+        marginBottom: 10,
+    },
+    modalInput: {
+        width: "100%",
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 8,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        marginVertical: 6,
+    },
+    modalButtons: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 12,
+        width: "100%",
+    },
+});
