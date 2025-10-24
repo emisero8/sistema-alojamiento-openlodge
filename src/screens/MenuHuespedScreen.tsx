@@ -154,7 +154,7 @@ export const MenuHuespedScreen: React.FC = () => {
                 style={[styles.image, { height: 180, marginBottom: 10 }]}
               />
               <Text style={styles.detailSubtitle}>Detalles de la propiedad:</Text>
-              <ScrollView style={{ maxHeight: 200 }}>
+              <ScrollView style={{ /*maxHeight: 200*/ flex: 1 }}>
                 {propSeleccionada.details.map((d, i) => (
                   <Text key={i} style={styles.detailItem}>
                     • {d}

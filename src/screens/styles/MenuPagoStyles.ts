@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
         marginBottom: 10,
     },
 
-    imageLarge: {
+    /*imageLarge: {
         position: "relative",
         alignSelf: "center",
         width: "90%",
@@ -103,6 +103,39 @@ export const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 22,
         fontWeight: "bold",
+    },*/
+    /* Carrusel */
+    carousel: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 20,
+    },
+    imageLarge: {
+        width: 360,   // antes 280
+        height: 230,  // antes 180
+        borderRadius: 12,
+        marginHorizontal: 10,
+        resizeMode: "cover",
+        shadowColor: "#000",
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+    },
+    navBtn: {
+        position: "relative",
+        backgroundColor: "rgba(0,0,0,0.4)", // un poco más visible
+        borderRadius: 40,  // antes 30
+        width: 44,         // antes 30
+        height: 44,        // antes 30
+        justifyContent: "center",
+        alignItems: "center",
+        marginHorizontal: 4,
+    },
+    navBtnText: {
+        color: "#fff",
+        fontSize: 28,  // antes 20
+        fontWeight: "bold",
+        lineHeight: 28,
     },
 
     section: {
@@ -164,5 +197,25 @@ export const styles = StyleSheet.create({
     btnGhostText: {
         color: "#ffc107",
         fontWeight: "600",
+    },
+
+    // TODO DE LOS RESUMENES
+    resumenContainer: {
+        flexDirection: "row",
+        justifyContent: "center", // centra todo horizontalmente
+        alignItems: "stretch",
+        gap: 12,
+        flexWrap: "wrap", // para que se apilen en pantallas chicas
+    },
+
+    resumenBox: {
+        flex: 1,
+        minWidth: 160, // ancho mínimo
+        backgroundColor: "#fff", // mismo fondo
+        borderRadius: 12,
+        padding: 16,
+        borderWidth: 2,
+        borderColor: "#ddd",
+        elevation: 2,
     },
 });

@@ -82,7 +82,11 @@ export const styles = StyleSheet.create({
     // --- ZONA DE TARJETAS ---
     cardArea: {
         flex: 3,
-        height: 500, // altura del contenedor con scroll
+        height: 650, // altura del contenedor con scroll
+        borderWidth: 2,          // borde más visible
+        borderColor: "#ddd",  // color que destaque
+        borderRadius: 10,        // opcional, para esquinas redondeadas
+        padding: 8,
     },
     cardContent: {
         flexDirection: 'row',
@@ -132,14 +136,14 @@ export const styles = StyleSheet.create({
 
     // --- PANEL DE DETALLE ---
     detail: {
-        flex: 0.8, // más angosto (≈25–30% del ancho total)
+        flex: 0.5, // más angosto (≈25–30% del ancho total)
         borderWidth: 2,
         borderColor: '#cfcfcf',
         borderRadius: 10,
         padding: 16,
         backgroundColor: '#fff',
-        height: 500,
-        justifyContent: 'center',
+        height: 650,
+        justifyContent: 'flex-start',
     },
     detailEmpty: {
         color: '#777',
@@ -147,18 +151,18 @@ export const styles = StyleSheet.create({
     },
     detailTitle: {
         fontWeight: "700",
-        fontSize: 16,
+        fontSize: 20,
         textAlign: "center",
         marginBottom: 8,
     },
     detailSubtitle: {
         fontWeight: "600",
-        fontSize: 14,
+        fontSize: 16,
         marginTop: 12,
         marginBottom: 6,
     },
     detailItem: {
-        fontSize: 13,
+        fontSize: 15,
         color: "#444",
         marginLeft: 8,
         marginBottom: 2,
