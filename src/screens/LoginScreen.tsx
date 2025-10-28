@@ -39,9 +39,9 @@ const LoginScreen: React.FC = () => {
             // ✅ Redirección según el rol
             if (usuario.rol === "Huesped") {
                 navigation.replace("MenuHuesped");
-            } /*else if (usuario.rol === "Anfitrion") {
+            } else if (usuario.rol === "Anfitrion") {
                 navigation.replace("MenuAnfitrion");
-            }*/ else {
+            } else {
                 Alert.alert("Error", "Rol desconocido.");
             }
         } else {

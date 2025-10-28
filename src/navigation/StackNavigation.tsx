@@ -5,14 +5,26 @@ import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "../screens/LoginScreen";
 import MenuHuespedScreen from "../screens/MenuHuespedScreen";
 import MenuAlquilarScreen from "../screens/MenuAlquilarScreen";
-import { StyleSheet } from "react-native";
 import MenuPagoScreen from "../screens/MenuPagoScreen";
+import MenuAnfitrionScreen from "../screens/MenuAnfitrionScreen";
+import MenuEditarScreen from "../screens/MenuEditarScreen";
+import { Propiedad } from "../types/Propiedad";
+import { MenuGestionarScreen } from "../screens/MenuGestionarScreen";
+import MenuHistorialScreen from "../screens/MenuHistorialScreen";
+import MenuPublicarScreen from "../screens/MenuPublicarScreen";
 
 export type RootStackParamList = {
     Login: undefined;
+    /* Flujo de Huesped */
     MenuHuesped: undefined;
     MenuAlquilar: { propiedad: any };
     MenuPago: { reserva: any };
+    /* Flujo de Anfitrion */
+    MenuAnfitrion: undefined;
+    MenuEditar: { propiedad: Propiedad };
+    MenuGestionar: undefined;
+    MenuHistorial: undefined;
+    MenuPublicar: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -39,6 +51,31 @@ const StackNavigator = () => {
                 <Stack.Screen
                     name="MenuPago"
                     component={MenuPagoScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="MenuAnfitrion"
+                    component={MenuAnfitrionScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="MenuEditar"
+                    component={MenuEditarScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="MenuGestionar"
+                    component={MenuGestionarScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="MenuHistorial"
+                    component={MenuHistorialScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="MenuPublicar"
+                    component={MenuPublicarScreen}
                     options={{ headerShown: false }}
                 />
             </Stack.Navigator>
