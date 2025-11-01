@@ -1,6 +1,6 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { useAuth } from "../context/AuthContext";
 
 import LoginScreen from "../screens/LoginScreen";
 import MenuHuespedScreen from "../screens/MenuHuespedScreen";
@@ -30,56 +30,37 @@ export type RootStackParamList = {
 const Stack = createStackNavigator<RootStackParamList>();
 
 const StackNavigator = () => {
+    // Llama al hook 'useAuth' para obtener las variables del contexto
+    const { token, rol } = useAuth();
+    
     return (
-        <NavigationContainer>
-            <Stack.Navigator initialRouteName="Login">
-                <Stack.Screen
-                    name="Login"
-                    component={LoginScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="MenuHuesped"
-                    component={MenuHuespedScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="MenuAlquilar"
-                    component={MenuAlquilarScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="MenuPago"
-                    component={MenuPagoScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="MenuAnfitrion"
-                    component={MenuAnfitrionScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="MenuEditar"
-                    component={MenuEditarScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="MenuGestionar"
-                    component={MenuGestionarScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="MenuHistorial"
-                    component={MenuHistorialScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="MenuPublicar"
-                    component={MenuPublicarScreen}
-                    options={{ headerShown: false }}
-                />
-            </Stack.Navigator>
-        </NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {token == null ? (
+                // --- STACK SI NO ESTÁ LOGUEADO ---
+                // Si no hay token, solo mostramos la pantalla de Login
+                <Stack.Screen name="Login" component={LoginScreen} />
+                // (Aquí también iría tu futura pantalla de Registro)
+            ) : rol === 'HUESPED' ? (
+                // --- STACK SI ES ROL "HUESPED" ---
+                // Si hay token y el rol es Huesped, mostramos sus pantallas
+                <>
+                    <Stack.Screen name="MenuHuesped" component={MenuHuespedScreen} />
+                    <Stack.Screen name="MenuAlquilar" component={MenuAlquilarScreen} />
+                    <Stack.Screen name="MenuPago" component={MenuPagoScreen} />
+                    {/* Aquí puedes agregar más pantallas de Huesped */}
+                </>
+            ) : (
+                // --- STACK SI ES ROL "ANFITRION" (o cualquier otro rol) ---
+                <>
+                    <Stack.Screen name="MenuAnfitrion" component={MenuAnfitrionScreen} />
+                    <Stack.Screen name="MenuEditar" component={MenuEditarScreen} />
+                    <Stack.Screen name="MenuGestionar" component={MenuGestionarScreen} />
+                    <Stack.Screen name="MenuHistorial" component={MenuHistorialScreen} />
+                    <Stack.Screen name="MenuPublicar" component={MenuPublicarScreen} />
+                    {/* Aquí puedes agregar más pantallas de Anfitrion */}
+                </>
+            )}
+        </Stack.Navigator>
     );
 };
 
