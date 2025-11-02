@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,18 +12,12 @@ import {
 } from "react-native";
 import { styles } from "./styles/MenuHuespedStyles";
 import propiedadesData from "../data/propiedades.json";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/StackNavigation";
+import { useAuth } from "../context/AuthContext";
+import { Propiedad } from "../types/Propiedad";
 
-interface Propiedad {
-  id: string;
-  title: string;
-  img: string;
-  details: string[];
-  servicios: string[];
-  price: number;
-}
 
 type MenuHuespedNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -31,7 +25,7 @@ type MenuHuespedNavigationProp = StackNavigationProp<
 >;
 
 
-const imagenes: Record<string, any> = {
+/*const imagenes: Record<string, any> = {
   "1": require("../assets/propiedades/1/IMG1.jpg"),
   "2": require("../assets/propiedades/2/IMG1.jpg"),
   "3": require("../assets/propiedades/3/IMG1.jpg"),
@@ -41,10 +35,27 @@ const imagenes: Record<string, any> = {
   "7": require("../assets/propiedades/7/IMG1.jpg"),
   "8": require("../assets/propiedades/8/IMG1.jpg"),
   "9": require("../assets/propiedades/9/IMG1.jpg"),
+};*/
+
+// La clave AHORA es el path de la imagen
+const imagenes: Record<string, any> = {
+  "/img/propiedades/1/IMG1.jpg": require("../assets/propiedades/1/IMG1.jpg"),
+  "/img/propiedades/2/IMG1.jpg": require("../assets/propiedades/2/IMG1.jpg"),
+  "/img/propiedades/3/IMG1.jpg": require("../assets/propiedades/3/IMG1.jpg"),
+  "/img/propiedades/4/IMG1.jpg": require("../assets/propiedades/4/IMG1.jpg"),
+  "/img/propiedades/5/IMG1.jpg": require("../assets/propiedades/5/IMG1.jpg"),
+  "/img/propiedades/6/IMG1.jpg": require("../assets/propiedades/6/IMG1.jpg"),
+  "/img/propiedades/7/IMG1.jpg": require("../assets/propiedades/7/IMG1.jpg"),
+  "/img/propiedades/8/IMG1.jpg": require("../assets/propiedades/8/IMG1.jpg"),
+  "/img/propiedades/9/IMG1.jpg": require("../assets/propiedades/9/IMG1.jpg"),
 };
+
+const API_URL = "http://localhost:8080";
 
 export const MenuHuespedScreen: React.FC = () => {
   const navigation = useNavigation<MenuHuespedNavigationProp>();
+
+  const { logout } = useAuth();
 
 
   const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
@@ -54,18 +65,53 @@ export const MenuHuespedScreen: React.FC = () => {
   const [precioMax, setPrecioMax] = useState("");
   const [loading, setLoading] = useState(true);
   const [propSeleccionada, setPropSeleccionada] = useState<Propiedad | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setPropiedades(propiedadesData);
-    setLoading(false);
-  }, []);
+  // --- Cargar propiedades (Lógica reemplazada) ---
+  const cargarPropiedades = async () => {
+    setLoading(true);
+    setError(null);
 
+    try {
+      // Este es el endpoint PÚBLICO, no necesita token
+      const response = await fetch(`${API_URL}/api/propiedades`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al cargar las propiedades');
+      }
+
+      const data: Propiedad[] = await response.json();
+      setPropiedades(data);
+
+    } catch (e: any) {
+      console.error(e);
+      setError(e.message || 'Ocurrió un error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Usamos 'useFocusEffect' para recargar cada vez que vemos la pantalla
+  useFocusEffect(
+    useCallback(() => {
+      cargarPropiedades();
+    }, []) // Dependencia vacía, se ejecuta solo al enfocar
+  );
+
+  // Lógica de filtrado (ACTUALIZADA con los campos de la API)
   const propiedadesFiltradas = propiedades.filter((p) => {
-    const matchDireccion = p.title.toLowerCase().includes(busqueda.toLowerCase());
+    // Buscamos por 'direccion' O 'titulo'
+    const matchDireccion = p.direccion.toLowerCase().includes(busqueda.toLowerCase());
+    const matchTitulo = p.titulo.toLowerCase().includes(busqueda.toLowerCase());
+
     const min = precioMin ? parseInt(precioMin) : 0;
     const max = precioMax ? parseInt(precioMax) : Infinity;
-    const matchPrecio = p.price >= min && p.price <= max;
-    return matchDireccion && matchPrecio;
+    // CAMBIO: p.price -> p.precioPorNoche
+    const matchPrecio = p.precioPorNoche >= min && p.precioPorNoche <= max;
+
+    return (matchDireccion || matchTitulo) && matchPrecio;
   });
 
   if (loading) {
@@ -102,7 +148,7 @@ export const MenuHuespedScreen: React.FC = () => {
           <TouchableOpacity style={styles.button} onPress={() => setMostrarModal(true)}>
             <Text style={styles.buttonText}>Filtrar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutBtn}>
+          <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
             <Text style={styles.logoutText}>Cerrar sesión</Text>
           </TouchableOpacity>
         </View>
@@ -114,60 +160,65 @@ export const MenuHuespedScreen: React.FC = () => {
         <ScrollView
           style={styles.cardArea}
           contentContainerStyle={styles.cardContent}
-          showsVerticalScrollIndicator={true}
         >
-          {propiedadesFiltradas.length > 0 ? (
-            propiedadesFiltradas.map((p) => (
-              <TouchableOpacity
-                key={p.id}
-                style={[
-                  styles.card,
-                  propSeleccionada?.id === p.id && { borderColor: "#4caf50", borderWidth: 2 },
-                ]}
-                onPress={() => setPropSeleccionada(p)}
-              >
-                <Text style={styles.address}>{p.title}</Text>
-                <Image
-                  source={imagenes[p.id] || require("../assets/logoTerminado.png")}
-                  style={styles.image}
-                />
-                <Text style={styles.status}>Precio: ${p.price.toLocaleString()}</Text>
-                <View style={styles.actions}>
-                  <TouchableOpacity style={styles.seeBtn} onPress={() => setPropSeleccionada(p)}>
-                    <Text style={styles.seeBtnText}>Ver más detalles</Text>
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-            ))
-          ) : (
+          {error && <Text style={styles.detailEmpty}>Error: {error}</Text>}
+
+          {!loading && !error && propiedadesFiltradas.length === 0 && (
             <Text style={styles.detailEmpty}>No se encontraron propiedades.</Text>
           )}
+          {propiedadesFiltradas.map((p) => (
+            <TouchableOpacity
+              key={p.id}
+              style={[
+                styles.card,
+                propSeleccionada?.id === p.id && { borderColor: "#4caf50", borderWidth: 2 },
+              ]}
+              onPress={() => setPropSeleccionada(p)}
+            >
+              {/* 10. CAMBIO: p.title -> p.titulo */}
+              <Text style={styles.address}>{p.titulo}</Text>
+              <Image
+                // CAMBIO: p.id -> p.id.toString()
+                source={imagenes[p.imagenPrincipalUrl] || require("../assets/logoTerminado.png")}
+                style={styles.image}
+              />
+              {/* 11. CAMBIO: p.price -> p.precioPorNoche */}
+              <Text style={styles.status}>Precio: ${p.precioPorNoche.toLocaleString()}</Text>
+              <View style={styles.actions}>
+                <TouchableOpacity style={styles.seeBtn} onPress={() => setPropSeleccionada(p)}>
+                  <Text style={styles.seeBtnText}>Ver más detalles</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
 
         {/* PANEL DE DETALLES */}
         <View style={styles.detail}>
           {propSeleccionada ? (
             <>
-              <Text style={styles.detailTitle}>{propSeleccionada.title}</Text>
+              <Text style={styles.detailTitle}>{propSeleccionada.titulo}</Text>
               <Image
-                source={imagenes[propSeleccionada.id] || require("../assets/logoTerminado.png")}
+                source={imagenes[propSeleccionada.imagenPrincipalUrl] || require("../assets/logoTerminado.png")}
                 style={[styles.image, { height: 180, marginBottom: 10 }]}
               />
               <Text style={styles.detailSubtitle}>Detalles de la propiedad:</Text>
               <ScrollView style={{ /*maxHeight: 200*/ flex: 1 }}>
-                {propSeleccionada.details.map((d, i) => (
-                  <Text key={i} style={styles.detailItem}>
-                    • {d}
-                  </Text>
-                ))}
+                <Text style={styles.detailItem}>
+                  {propSeleccionada.descripcion}
+                </Text>
                 <Text style={[styles.detailSubtitle, { marginTop: 10 }]}>
                   Servicios:
                 </Text>
-                {propSeleccionada.servicios.map((s, i) => (
-                  <Text key={i} style={styles.detailItem}>
-                    • {s}
-                  </Text>
-                ))}
+                {propSeleccionada.servicios.length > 0 ? (
+                  propSeleccionada.servicios.map((s) => (
+                    <Text key={s.id} style={styles.detailItem}>
+                      • {s.nombre}
+                    </Text>
+                  ))
+                ) : (
+                  <Text style={styles.detailItem}>No hay servicios asignados.</Text>
+                )}
               </ScrollView>
               <View style={styles.footer}>
                 <TouchableOpacity
