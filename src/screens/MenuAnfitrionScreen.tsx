@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { styles } from "./styles/MenuAnfitrionStyles";
 // import propiedadesData from "../data/propiedades.json"; // ⬅️ BORRADO
-import { useNavigation, useFocusEffect } from "@react-navigation/native"; // 2. Importamos useFocusEffect
+import { useNavigation, useFocusEffect, RouteProp } from "@react-navigation/native"; // 2. Importamos useFocusEffect
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/StackNavigation";
 // import AsyncStorage from "@react-native-async-storage/async-storage"; // ⬅️ BORRADO (el context se encarga)
@@ -93,32 +93,54 @@ export const MenuAnfitrionScreen: React.FC = () => {
     }, [token]) // Solo se recalcula si el token cambia
   );
 
-  // --- 9. Dar de baja propiedad (ACTUALIZAR A FUTURO) ---
-  const darDeBaja = async (id: number) => { // 'id' ahora es number
-    // TODO: Esta lógica es local.
-    // A futuro, aquí debes llamar a:
-    // await fetch(`${API_URL}/api/propiedades/${id}`, { 
-    //   method: 'DELETE', 
-    //   headers: { 'Authorization': `Bearer ${token}` }
-    // });
-    // Y LUEGO recargar las propiedades
+  // --- 9. Dar de baja propiedad --- PARA WEB
+  const darDeBaja = async (id: number) => {
+    if (!token) {
+      Alert.alert("Error", "No estás autenticado.");
+      return;
+    }
 
-    Alert.alert(
-      "Confirmar",
-      "¿Seguro que deseas dar de baja esta propiedad? (Función en desarrollo)",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Aceptar",
-          onPress: async () => {
-            // Por ahora, solo lo quitamos del estado local
-            const actualizadas = propiedades.filter((p) => p.id !== id);
-            setPropiedades(actualizadas);
-            setPropSeleccionada(null);
-          },
-        },
-      ]
+    // 1. Usamos 'window.confirm' en lugar de 'Alert.alert' para la web
+    //    Esto mostrará un pop-up simple de Aceptar/Cancelar.
+    const confirmacion = window.confirm(
+      "¿Seguro que deseas eliminar esta propiedad? Esta acción no se puede deshacer."
     );
+
+    // 2. Si el usuario presiona "Cancelar", 'confirmacion' será false
+    if (!confirmacion) {
+      return; // No hacemos nada
+    }
+
+    // 3. Si el usuario presionó "Aceptar", ejecutamos la lógica de borrado
+    setLoading(true); // Mostramos spinner
+    try {
+      // 4. Llamamos a la API con el método DELETE y el token
+      const response = await fetch(`${API_URL}/api/propiedades/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.status === 403) {
+        Alert.alert("Error", "No tienes permiso para borrar esta propiedad o tu sesión expiró.");
+        logout(); // Forzamos logout por seguridad
+        return;
+      }
+      if (!response.ok) {
+        throw new Error("No se pudo eliminar la propiedad.");
+      }
+
+      // 5. ¡Éxito! Usamos 'Alert.alert' simple (que sí funciona)
+      Alert.alert("Éxito", "Propiedad eliminada correctamente.");
+      setPropiedades(prev => prev.filter((p) => p.id !== id));
+      setPropSeleccionada(null); // Limpiamos la selección
+
+    } catch (err: any) {
+      Alert.alert("Error", err.message || "Ocurrió un problema.");
+    } finally {
+      setLoading(false); // Ocultamos spinner
+    }
   };
 
   // --- Editar propiedad ---

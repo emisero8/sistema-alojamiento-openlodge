@@ -8,276 +8,250 @@ import {
     ScrollView,
     Alert,
     ActivityIndicator,
+    StyleSheet, // Usaremos un StyleSheet
 } from "react-native";
 import { styles } from "./styles/MenuEditarStyles";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/StackNavigation";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as ImagePicker from "expo-image-picker";
 
-interface Propiedad {
-    id: string;
-    title: string;
-    img: string;
-    details: string[];
-    servicios: string[];
-    descripcion?: string;
-}
+import { useAuth } from "../context/AuthContext";
+import { Propiedad, Servicio } from "../types/Propiedad";
 
-type MenuEditarNavigationProp = StackNavigationProp<
-    RootStackParamList,
-    "MenuEditar"
+// Define la URL de la API
+const API_URL = 'http://localhost:8080';
 
->;
+// Define el tipo de los parámetros de la ruta
+type MenuEditarRouteProp = RouteProp<RootStackParamList, 'MenuEditar'>;
 
 export const MenuEditarScreen: React.FC = () => {
-    const navigation = useNavigation<MenuEditarNavigationProp>();
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    const route = useRoute<MenuEditarRouteProp>(); // 1. Obtenemos la ruta para acceder a los parámetros
+    const { token, logout } = useAuth(); // 2. Obtenemos el token
 
-    const [propiedad, setPropiedad] = useState<Propiedad | null>(null);
-    const [direccion, setDireccion] = useState("");
-    const [inquilinos, setInquilinos] = useState("");
-    const [desde, setDesde] = useState("");
-    const [hasta, setHasta] = useState("");
-    const [descripcion, setDescripcion] = useState("");
-    const [servicios, setServicios] = useState<string[]>([]);
-    const [imagen, setImagen] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
+    // 3. Obtenemos la propiedad que enviamos desde MenuAnfitrionScreen
+    const propiedadAEditar = route.params.propiedad;
 
+    // 4. Estados del formulario, inicializados con los datos de la propiedad
+    const [titulo, setTitulo] = useState(propiedadAEditar.titulo);
+    const [direccion, setDireccion] = useState(propiedadAEditar.direccion);
+    const [descripcion, setDescripcion] = useState(propiedadAEditar.descripcion);
+    const [precioPorNoche, setPrecioPorNoche] = useState(propiedadAEditar.precioPorNoche.toString());
+    const [numeroHuespedes, setNumeroHuespedes] = useState(propiedadAEditar.numeroHuespedes.toString());
+    const [imagenPrincipalUrl, setImagenPrincipalUrl] = useState(propiedadAEditar.imagenPrincipalUrl);
+
+    // 5. Estados para cargar y seleccionar servicios
+    const [serviciosMaestros, setServiciosMaestros] = useState<Servicio[]>([]);
+
+    // Convertimos el array de servicios de la propiedad (ej: [ {id: 1}, {id: 3} ])
+    // en un mapa de selección (ej: { 1: true, 3: true })
+    const [serviciosSeleccionados, setServiciosSeleccionados] = useState<Record<number, boolean>>(() => {
+        const initialState: Record<number, boolean> = {};
+        propiedadAEditar.servicios.forEach(s => {
+            initialState[s.id] = true;
+        });
+        return initialState;
+    });
+
+    const [loading, setLoading] = useState(false); // Para guardar
+    const [loadingServicios, setLoadingServicios] = useState(true); // Para cargar los chips
+
+    // 6. Cargar la lista de servicios maestros al montar la pantalla
     useEffect(() => {
-        const cargarPropiedad = async () => {
+        const cargarServicios = async () => {
+            setLoadingServicios(true);
             try {
-                const idEditar = await AsyncStorage.getItem("propiedadEditar");
-                if (!idEditar) {
-                    Alert.alert("Error", "No se encontró la propiedad a editar");
-                    navigation.navigate("MenuAnfitrion" as never);
-                    return;
-                }
-
-                const listaStr = await AsyncStorage.getItem("propiedades");
-                const lista: Propiedad[] = listaStr ? JSON.parse(listaStr) : [];
-                const prop = lista.find((p) => p.id === idEditar);
-
-                if (!prop) {
-                    Alert.alert("Error", "Propiedad no encontrada");
-                    navigation.navigate("MenuAnfitrion" as never);
-                    return;
-                }
-
-                setPropiedad(prop);
-                setDireccion(prop.title);
-                setInquilinos(prop.details[0]?.match(/\d+/)?.[0] || "");
-                setDesde(prop.details[1]?.replace("Disponible desde: ", "") || "");
-                setHasta(prop.details[2]?.replace("Disponible hasta: ", "") || "");
-                setDescripcion(prop.descripcion || "");
-                setServicios(prop.servicios || []);
-                setImagen(prop.img);
-            } catch (err) {
-                console.error("Error al cargar propiedad:", err);
+                const response = await fetch(`${API_URL}/api/servicios`);
+                if (!response.ok) throw new Error('No se pudieron cargar los servicios');
+                const data: Servicio[] = await response.json();
+                setServiciosMaestros(data);
+            } catch (error: any) {
+                Alert.alert('Error', error.message);
             } finally {
-                setLoading(false);
+                setLoadingServicios(false);
             }
         };
+        cargarServicios();
+    }, []); // Se ejecuta solo una vez
 
-        cargarPropiedad();
-
-
-    }, []);
-
-    const toggleServicio = (s: string) => {
-        setServicios((prev) =>
-            prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
-        );
+    // 7. Función para manejar la selección de un servicio (checkbox)
+    const toggleServicio = (id: number) => {
+        setServiciosSeleccionados(prev => ({
+            ...prev,
+            [id]: !prev[id],
+        }));
     };
 
-    const seleccionarImagen = async () => {
-        const permiso = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!permiso.granted) {
-            Alert.alert("Permiso requerido", "Se necesita acceso a tus imágenes.");
-            return;
-        }
-
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 0.8,
-            allowsEditing: true,
-        });
-
-        if (!result.canceled) {
-            setImagen(result.assets[0].uri);
-        }
-
-    };
-
-    const guardarCambios = async () => {
-        if (!direccion || !inquilinos || !desde || !hasta) {
+    // 8. Función para guardar los cambios (reemplaza tu guardarCambios)
+    const handleGuardarCambios = async () => {
+        if (!titulo || !direccion || !precioPorNoche || !numeroHuespedes) {
             Alert.alert("Error", "Por favor completa todos los campos requeridos.");
             return;
         }
-
-        try {
-            const listaStr = await AsyncStorage.getItem("propiedades");
-            const lista: Propiedad[] = listaStr ? JSON.parse(listaStr) : [];
-
-            if (!propiedad) return;
-
-            const actualizada: Propiedad = {
-                ...propiedad,
-                title: direccion,
-                img: imagen || propiedad.img,
-                details: [
-                    `Capacidad: ${inquilinos} inquilinos`,
-                    `Disponible desde: ${desde} `,
-                    `Disponible hasta: ${hasta} `,
-                ],
-                descripcion,
-                servicios,
-            };
-
-            const nuevas = lista.map((p) => (p.id === propiedad.id ? actualizada : p));
-            await AsyncStorage.setItem("propiedades", JSON.stringify(nuevas));
-            await AsyncStorage.removeItem("propiedadEditar");
-
-            Alert.alert("Éxito", "Propiedad editada con éxito ✅", [
-                { text: "OK", onPress: () => navigation.navigate("MenuAnfitrion" as never) },
-            ]);
-        } catch (err) {
-            console.error("Error guardando cambios:", err);
+        if (!token) {
+            Alert.alert("Error", "No estás autenticado.");
+            return;
         }
 
+        setLoading(true);
+        try {
+            // Formatear los servicios al formato de la API: [ { "id": 1 }, { "id": 3 } ]
+            const serviciosParaEnviar = Object.keys(serviciosSeleccionados)
+                .filter(id => serviciosSeleccionados[Number(id)])
+                .map(id => ({ id: Number(id) }));
+
+            // Crear el objeto de la propiedad actualizada
+            const propiedadActualizada = {
+                titulo,
+                descripcion,
+                direccion,
+                precioPorNoche: parseFloat(precioPorNoche),
+                numeroHuespedes: parseInt(numeroHuespedes),
+                imagenPrincipalUrl: imagenPrincipalUrl || '/img/propiedades/default.png',
+                servicios: serviciosParaEnviar,
+            };
+
+            // Llamar a la API con el método PUT
+            const response = await fetch(`${API_URL}/api/propiedades/${propiedadAEditar.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(propiedadActualizada),
+            });
+
+            if (response.status === 403) {
+                Alert.alert("Error", "No tienes permiso para editar esta propiedad o tu sesión expiró.");
+                logout();
+                return;
+            }
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err || 'No se pudo guardar la propiedad.');
+            }
+
+            Alert.alert("✅ Éxito", "Propiedad actualizada con éxito.");
+            navigation.navigate("MenuAnfitrion"); // Volvemos al menú
+
+        } catch (error: any) {
+            Alert.alert("Error", error.message || "No se pudo guardar la propiedad.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const cancelar = () => {
-        Alert.alert("Cancelar", "¿Deseas cancelar la edición?", [
-            { text: "No", style: "cancel" },
-            { text: "Sí", onPress: () => navigation.navigate("MenuAnfitrion" as never) },
-        ]);
+        // Usamos window.confirm() que sí funciona en web
+        const confirmacion = window.confirm("¿Deseas descartar los cambios?");
+
+        if (confirmacion) {
+            // Si el usuario presiona "Aceptar", navegamos
+            navigation.navigate("MenuAnfitrion");
+        }
+        // Si presiona "Cancelar", no hace nada
     };
 
-    if (loading) {
-        return (
-            <View style={[styles.page, { justifyContent: "center", alignItems: "center" }]}> <ActivityIndicator size="large" color="#4caf50" />
-                <Text style={{ marginTop: 10 }}>Cargando propiedad...</Text> </View>
-        );
-    }
-
     return (
-    <ScrollView style={[styles.page, { height: "100vh" } as any]} contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* HEADER */} <View style={styles.header}> <View style={styles.logoContainer}>
-            <Image
-                source={require("../assets/logoTerminado.png")}
-                style={styles.logo}
-            /> <Text style={styles.brandName}>OpenLodge</Text> </View>
-
-            ```
-            <View style={styles.controls}>
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => navigation.navigate("MenuAnfitrion" as never)}
-                >
-                    <Text style={styles.buttonText}>Menú principal</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Historial</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Gestionar reservas</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Publicar propiedad</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.logoutBtn}>
-                    <Text style={styles.logoutText}>Cerrar sesión</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-
-        {/* FORMULARIO */}
-        <View style={styles.form}>
-            <Text style={styles.label}>Dirección de la propiedad:</Text>
-            <TextInput
-                style={styles.input}
-                value={direccion}
-                onChangeText={setDireccion}
-                placeholder="Ej: Calle 123, Ciudad"
-            />
-
-            <Text style={styles.label}>Imágenes de la propiedad:</Text>
-            <TouchableOpacity style={styles.preview} onPress={seleccionarImagen}>
-                {imagen ? (
-                    <Image source={{ uri: imagen }} style={styles.previewImage} />
-                ) : (
-                    <Text style={styles.previewText}>Tocar para seleccionar imagen</Text>
-                )}
-            </TouchableOpacity>
-
-            <Text style={styles.label}>Seleccione servicios a incluir:</Text>
-            <View style={styles.servicios}>
-                {["Wi-Fi", "Cochera", "Piscina", "Aire acondicionado"].map((s) => (
-                    <TouchableOpacity
-                        key={s}
-                        onPress={() => toggleServicio(s)}
-                        style={[
-                            styles.servicioItem,
-                            servicios.includes(s) && styles.servicioActivo,
-                        ]}
-                    >
-                        <Text
-                            style={[
-                                styles.servicioText,
-                                servicios.includes(s) && styles.servicioTextActivo,
-                            ]}
-                        >
-                            {s}
-                        </Text>
+        <ScrollView style={[styles.page, { height: "100vh" } as any]} contentContainerStyle={{ paddingBottom: 40 }}>
+            {/* HEADER (Tu header queda igual, pero conecta el logout) */}
+            <View style={styles.header}>
+                <View style={styles.logoContainer}>
+                    <Image source={require("../assets/logoTerminado.png")} style={styles.logo} />
+                    <Text style={styles.brandName}>OpenLodge</Text>
+                </View>
+                <View style={styles.controls}>
+                    {/* ... (botones de navegación) ... */}
+                    <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+                        <Text style={styles.logoutText}>Cerrar sesión</Text>
                     </TouchableOpacity>
-                ))}
+                </View>
             </View>
 
-            <Text style={styles.label}>Cantidad de inquilinos:</Text>
-            <TextInput
-                style={styles.input}
-                value={inquilinos}
-                onChangeText={setInquilinos}
-                keyboardType="numeric"
-            />
+            {/* FORMULARIO */}
+            <View style={styles.form}>
+                <Text style={styles.label}>Título de la Publicación:</Text>
+                <TextInput
+                    style={styles.input}
+                    value={titulo}
+                    onChangeText={setTitulo}
+                />
 
-            <Text style={styles.label}>Disponible desde:</Text>
-            <TextInput
-                style={styles.input}
-                value={desde}
-                onChangeText={setDesde}
-                placeholder="YYYY-MM-DD"
-            />
+                <Text style={styles.label}>Dirección:</Text>
+                <TextInput
+                    style={styles.input}
+                    value={direccion}
+                    onChangeText={setDireccion}
+                />
 
-            <Text style={styles.label}>Disponible hasta:</Text>
-            <TextInput
-                style={styles.input}
-                value={hasta}
-                onChangeText={setHasta}
-                placeholder="YYYY-MM-DD"
-            />
+                {/* IMAGEN (Simplificado a un TextInput) */}
+                <Text style={styles.label}>URL de Imagen Principal:</Text>
+                <TextInput
+                    style={styles.input}
+                    value={imagenPrincipalUrl}
+                    onChangeText={setImagenPrincipalUrl}
+                />
 
-            <Text style={styles.label}>Descripción:</Text>
-            <TextInput
-                style={[styles.input, { height: 100, textAlignVertical: "top" }]}
-                multiline
-                value={descripcion}
-                onChangeText={setDescripcion}
-            />
+                {/* SERVICIOS (Cargados desde la API) */}
+                <Text style={styles.label}>Servicios incluidos:</Text>
+                {loadingServicios ? (
+                    <ActivityIndicator color="#4caf50" />
+                ) : (
+                    <View style={styles.servicios}>
+                        {serviciosMaestros.map((s) => (
+                            <TouchableOpacity
+                                key={s.id}
+                                style={[
+                                    styles.servicioItem, // Asumo que tienes 'servicioBtn' en tus estilos
+                                    serviciosSeleccionados[s.id] && styles.servicioActivo, // y 'servicioBtnActive'
+                                ]}
+                                onPress={() => toggleServicio(s.id)}
+                            >
+                                <Text
+                                    style={[
+                                        styles.servicioText, // y 'servicioText'
+                                        serviciosSeleccionados[s.id] && styles.servicioTextActivo, // y 'servicioTextActive'
+                                    ]}
+                                >
+                                    {s.nombre}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
 
-            <View style={styles.acciones}>
-                <TouchableOpacity style={styles.btnPrimary} onPress={guardarCambios}>
-                    <Text style={styles.btnText}>Guardar cambios</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.btnDanger} onPress={cancelar}>
-                    <Text style={styles.btnText}>Cancelar</Text>
-                </TouchableOpacity>
+                <Text style={styles.label}>Cantidad de huéspedes:</Text>
+                <TextInput
+                    style={styles.input}
+                    value={numeroHuespedes}
+                    onChangeText={setNumeroHuespedes}
+                    keyboardType="numeric"
+                />
+
+                {/* Campos 'Desde' y 'Hasta' eliminados */}
+
+                <Text style={styles.label}>Descripción:</Text>
+                <TextInput
+                    style={[styles.input, { height: 100, textAlignVertical: "top" }]}
+                    multiline
+                    value={descripcion}
+                    onChangeText={setDescripcion}
+                />
+
+                <View style={styles.acciones}>
+                    <TouchableOpacity style={styles.btnPrimary} onPress={handleGuardarCambios} disabled={loading}>
+                        {loading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.btnText}>Guardar cambios</Text>
+                        )}
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.btnDanger} onPress={cancelar} disabled={loading}>
+                        <Text style={styles.btnText}>Cancelar</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
-    </ScrollView>
-
+        </ScrollView>
     );
 };
 

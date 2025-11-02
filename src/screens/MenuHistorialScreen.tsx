@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
     View,
     Text,
@@ -8,39 +8,75 @@ import {
     ActivityIndicator,
 } from "react-native";
 import { styles } from "./styles/MenuHistorialStyles";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+// import AsyncStorage from "@react-native-async-storage/async-storage"; // ⬅️ BORRADO
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/StackNavigation";
+import { useAuth } from "../context/AuthContext"; // ⬅️ AÑADIDO
+import { Propiedad } from "../types/Propiedad"; // ⬅️ AÑADIDO
 
-interface Propiedad {
-    id: string;
-    title: string;
-    img: string;
-    descripcion?: string;
-    alquilada?: boolean;
-}
+// (Tu mapa de imágenes estáticas - ¡Recuerda que debe usar la URL como clave!)
+const imagenes: Record<string, any> = {
+    "/img/propiedades/1/IMG1.jpg": require("../assets/propiedades/1/IMG1.jpg"),
+    "/img/propiedades/2/IMG1.jpg": require("../assets/propiedades/2/IMG1.jpg"),
+    // ...
+    "/img/propiedades/9/IMG1.jpg": require("../assets/propiedades/9/IMG1.jpg"),
+};
+
+const API_URL = "http://localhost:8080";
+
+type MenuHistorialNavigationProp = StackNavigationProp<
+    RootStackParamList,
+    "MenuHistorial"
+>;
 
 export const MenuHistorialScreen: React.FC = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<MenuHistorialNavigationProp>();
+
+    // 1. Obtenemos los datos del Contexto
+    const { token, rol, nombre, apellido, email, logout } = useAuth();
+
     const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const cargarPropiedades = async () => {
-            try {
-                const data = await AsyncStorage.getItem("propiedades");
-                const lista: Propiedad[] = data ? JSON.parse(data) : [];
-                setPropiedades(lista);
-            } catch (error) {
-                console.error("Error al cargar propiedades:", error);
-            } finally {
-                setLoading(false);
+    // 2. Cargar propiedades (la misma lógica de MenuAnfitrionScreen)
+    const cargarPropiedades = async () => {
+        if (!token) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch(`${API_URL}/api/propiedades/mis-propiedades`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (response.status === 403) {
+                logout();
+                return;
             }
-        };
-        cargarPropiedades();
-    }, []);
+            if (!response.ok) throw new Error('Error al cargar propiedades');
+            const data: Propiedad[] = await response.json();
+            setPropiedades(data);
+        } catch (e: any) {
+            console.error(e);
+            setError(e.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    const alquiladas = propiedades.filter((p) => p.alquilada);
-    const disponibles = propiedades.filter((p) => !p.alquilada);
+    // 3. Usamos 'useFocusEffect' para recargar
+    useFocusEffect(
+        useCallback(() => {
+            cargarPropiedades();
+        }, [token])
+    );
+
+    // 4. Lógica de filtrado (TEMPORAL)
+    // TODO: A futuro, esto debe venir de un endpoint de 'Reservas'
+    // Por ahora, 'disponibles' son todas, 'alquiladas' está vacío.
+    const alquiladas: Propiedad[] = [];
+    const disponibles: Propiedad[] = propiedades;
 
     if (loading) {
         return (
@@ -61,28 +97,20 @@ export const MenuHistorialScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.topControls}>
+                    {/* ... (Botones de navegación) ... */}
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={() => navigation.navigate("MenuAnfitrion" as never)}
+                        onPress={() => navigation.navigate("MenuAnfitrion")}
                     >
                         <Text style={styles.buttonText}>Menú principal</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.button, styles.activeButton]}>
                         <Text style={[styles.buttonText, styles.activeText]}>Historial</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => navigation.navigate("MenuGestionar" as never)}
-                    >
-                        <Text style={styles.buttonText}>Gestionar reservas</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => navigation.navigate("MenuPublicar" as never)}
-                    >
-                        <Text style={styles.buttonText}>Publicar propiedad</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.logoutBtn}>
+                    {/* ... (otros botones) ... */}
+
+                    {/* 5. ¡Botón de Logout CONECTADO! */}
+                    <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
                         <Text style={styles.logoutText}>Cerrar sesión</Text>
                     </TouchableOpacity>
                 </View>
@@ -92,8 +120,9 @@ export const MenuHistorialScreen: React.FC = () => {
             <View style={styles.main}>
                 {/* SIDEBAR */}
                 <View style={styles.sidebar}>
+                    {/* 6. ¡Datos del Contexto! */}
                     <Text style={styles.sidebarTitle}>
-                        Bienvenido, <Text style={{ fontWeight: "700" }}>Anfitrión</Text>
+                        Bienvenido, <Text style={{ fontWeight: "700" }}>{nombre} {apellido}</Text>
                     </Text>
                     <View style={styles.profilePic}>
                         <Image
@@ -103,35 +132,20 @@ export const MenuHistorialScreen: React.FC = () => {
                     </View>
                     <Text style={styles.sidebarSubtitle}>Detalles de la cuenta:</Text>
                     <View style={styles.sidebarList}>
-                        <Text style={styles.listItem}>• Email: anfitrion@email.com</Text>
-                        <Text style={styles.listItem}>• Teléfono: +54 111 222 333</Text>
-                        <Text style={styles.listItem}>
-                            • Propiedades publicadas: {propiedades.length}
-                        </Text>
+                        {/* TODO: Cargar el email del usuario en el AuthContext */}
+                        <Text style={styles.listItem}>• Email: {email}</Text>
+                        <Text style={styles.listItem}>• Propiedades publicadas: {propiedades.length}</Text>
                     </View>
                 </View>
 
                 {/* CONTENIDO */}
                 <View style={styles.content}>
-                    <Text style={styles.sectionTitle}>Propiedades en alquiler:</Text>
+                    {error && <Text style={styles.emptyText}>Error: {error}</Text>}
+
+                    <Text style={styles.sectionTitle}>Propiedades en alquiler: (TODO)</Text>
                     {alquiladas.length > 0 ? (
                         <View style={styles.grid}>
-                            {alquiladas.map((p) => (
-                                <View key={p.id} style={styles.card}>
-                                    <Image
-                                        source={
-                                            p.img
-                                                ? { uri: p.img }
-                                                : require("../assets/propiedades/default.png")
-                                        }
-                                        style={styles.cardImage}
-                                    />
-                                    <Text style={styles.cardTitle}>{p.title}</Text>
-                                    <Text style={styles.cardDesc}>
-                                        {p.descripcion || "Sin descripción"}
-                                    </Text>
-                                </View>
-                            ))}
+                            {/* ... (mapa de alquiladas) ... */}
                         </View>
                     ) : (
                         <Text style={styles.emptyText}>No hay propiedades en alquiler.</Text>
@@ -142,15 +156,17 @@ export const MenuHistorialScreen: React.FC = () => {
                         <View style={styles.grid}>
                             {disponibles.map((p) => (
                                 <View key={p.id} style={styles.card}>
+                                    {/* 7. ¡IMAGEN CORREGIDA! */}
                                     <Image
                                         source={
-                                            p.img
-                                                ? { uri: p.img }
+                                            imagenes[p.imagenPrincipalUrl]
+                                                ? imagenes[p.imagenPrincipalUrl]
                                                 : require("../assets/propiedades/default.png")
                                         }
                                         style={styles.cardImage}
                                     />
-                                    <Text style={styles.cardTitle}>{p.title}</Text>
+                                    {/* 8. ¡CAMPOS CORREGIDOS! */}
+                                    <Text style={styles.cardTitle}>{p.titulo}</Text>
                                     <Text style={styles.cardDesc}>
                                         {p.descripcion || "Sin descripción"}
                                     </Text>

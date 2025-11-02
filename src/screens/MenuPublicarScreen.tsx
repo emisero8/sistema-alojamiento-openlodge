@@ -134,6 +134,17 @@ export const MenuPublicarScreen: React.FC = () => {
         }
     };
 
+    const cancelar = () => {
+        // Usamos window.confirm() que sí funciona en web
+        const confirmacion = window.confirm("¿Deseas descartar los cambios?");
+
+        if (confirmacion) {
+            // Si el usuario presiona "Aceptar", navegamos
+            navigation.navigate("MenuAnfitrion");
+        }
+        // Si presiona "Cancelar", no hace nada
+    };
+
     return (
         <ScrollView style={[styles.page, { height: "100vh" } as any]} contentContainerStyle={{ paddingBottom: 40 }}>
             {/* HEADER */}
@@ -252,11 +263,8 @@ export const MenuPublicarScreen: React.FC = () => {
                             <Text style={styles.btnText}>Finalizar Publicación</Text>
                         )}
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.btnDanger}
-                        onPress={() => navigation.navigate("MenuAnfitrion")}
-                        disabled={loading}
-                    >
+                    
+                    <TouchableOpacity style={styles.btnDanger} onPress={cancelar} disabled={loading}>
                         <Text style={styles.btnText}>Cancelar</Text>
                     </TouchableOpacity>
                 </View>
