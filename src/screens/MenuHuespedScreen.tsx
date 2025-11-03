@@ -187,6 +187,7 @@ export const MenuHuespedScreen: React.FC = () => {
                   onPress={() => setPropSeleccionada(p)} // ⬅️ Esto activa la vista de detalle
                 >
                   <Text style={styles.address}>{p.titulo}</Text>
+                  <Text style={styles.addressDetail}>{p.direccion}</Text>
                   <Image
                     source={imagenes[p.imagenPrincipalUrl] || require("../assets/logoTerminado.png")}
                     style={styles.image}
@@ -211,6 +212,7 @@ export const MenuHuespedScreen: React.FC = () => {
               */}
               <>
                 <Text style={styles.detailTitle}>{propSeleccionada.titulo}</Text>
+                <Text style={styles.detailDireccion}>{propSeleccionada.direccion}</Text>
                 <Image
                   source={imagenes[propSeleccionada.imagenPrincipalUrl] || require("../assets/logoTerminado.png")}
                   style={[styles.image, { height: 180, marginBottom: 10 }]}

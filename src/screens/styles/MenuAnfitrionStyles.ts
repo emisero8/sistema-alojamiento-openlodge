@@ -95,6 +95,13 @@ export const styles = StyleSheet.create({
         fontWeight: "600",
         marginBottom: 8,
     },
+    addressDetail: {
+        textAlign: "center",
+        fontSize: 12,
+        color: "#666",
+        marginBottom: 8,
+        marginTop: -4,
+    },
     image: {
         width: "100%",
         height: 150,
@@ -130,6 +137,12 @@ export const styles = StyleSheet.create({
     detailTitle: {
         fontWeight: "700",
         fontSize: 20,
+        textAlign: "center",
+        marginBottom: 8,
+    },
+    detailDireccion: {
+        fontWeight: "600",
+        fontSize: 18,
         textAlign: "center",
         marginBottom: 8,
     },

@@ -125,7 +125,14 @@ export const MenuAnfitrionScreen: React.FC = () => {
                 logout();
                 return;
               }
-              if (!response.ok) {
+
+              if (response.status === 409) {
+                const errorMessage = await response.text(); // "No se puede borrar porque tiene reservas"
+                Alert.alert("Acción Bloqueada", errorMessage);
+                return;
+              }
+
+              if (!response.ok && response.status !== 204) {
                 throw new Error("No se pudo eliminar la propiedad.");
               }
 
@@ -227,6 +234,7 @@ export const MenuAnfitrionScreen: React.FC = () => {
               onPress={() => setPropSeleccionada(p)} // ⬅️ Muestra el detalle
             >
               <Text style={styles.address}>{p.titulo}</Text>
+              <Text style={styles.addressDetail}>{p.direccion}</Text>
               <Image
                 source={imagenes[p.imagenPrincipalUrl] || require("../assets/logoTerminado.png")}
                 style={styles.image}
@@ -249,6 +257,7 @@ export const MenuAnfitrionScreen: React.FC = () => {
         <View style={styles.detail}>
           <>
             <Text style={styles.detailTitle}>{propSeleccionada.titulo}</Text>
+            <Text style={styles.detailDireccion}>{propSeleccionada.direccion}</Text>
             <Image
               source={imagenes[propSeleccionada.imagenPrincipalUrl] || require("../assets/logoTerminado.png")}
               style={[styles.image, { height: 180, marginBottom: 10 }]}

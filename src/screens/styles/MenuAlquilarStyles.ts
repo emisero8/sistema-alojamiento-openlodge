@@ -75,23 +75,29 @@ export const styles = StyleSheet.create({
         marginBottom: 10,
         textAlign: "center",
     },
-
+    address: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#555",
+        marginBottom: 10,
+        textAlign: "center",
+    },
     /* Carrusel */
     carousel: {
-        flexDirection: "row",
+        //flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 20,
+        width: '100%',
+        height: 230,
+        position: 'relative',
     },
     imageLarge: {
-        width: 360,   // antes 280
-        height: 230,  // antes 180
+        width: '100%',
+        height: '100%',
         borderRadius: 12,
-        marginHorizontal: 10,
+        //marginHorizontal: 10,
         resizeMode: "cover",
-        shadowColor: "#000",
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
     },
     navBtn: {
         position: "relative",
@@ -112,14 +118,14 @@ export const styles = StyleSheet.create({
 
     /* Secciones */
     columns: {
-        flexDirection: "row",
+        flexDirection: "column",
         flexWrap: "wrap",
         justifyContent: "space-between",
         marginVertical: 10,
     },
     section: {
         flex: 1,
-        minWidth: "30%",
+        //minWidth: "30%",
         padding: 10,
     },
     sectionTitle: {

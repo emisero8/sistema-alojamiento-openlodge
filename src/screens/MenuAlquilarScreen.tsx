@@ -96,13 +96,24 @@ export const MenuAlquilarScreen: React.FC<Props> = ({ navigation, route }) => {
       fechaInicio: fechaIngreso.toISOString().split("T")[0], // Formato "YYYY-MM-DD"
       fechaFin: fechaEgreso.toISOString().split("T")[0],     // Formato "YYYY-MM-DD"
       notas: notas,
-      // Pasamos la propiedad completa para que la pantalla de pago pueda calcular el precio
       propiedadCompleta: propiedad
     };
 
-    // 10. Navegamos a 'MenuPago' con los datos
-    // @ts-ignore (Ignoramos el error de tipo si 'reserva' en tu stack espera 'any')
-    navigation.navigate("MenuPago", { reserva: reservaParcial });
+    Alert.alert(
+      "Confirmar reserva",
+      `¿Confirmar reserva del ${reservaParcial.fechaInicio} al ${reservaParcial.fechaFin}?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Confirmar",
+          onPress: () => {
+            console.log("Reserva confirmada:", reservaParcial);
+            // @ts-ignore
+            navigation.navigate("MenuPago", { reserva: reservaParcial }); 
+          },
+        },
+      ]
+    );
   };
 
 
@@ -112,8 +123,8 @@ export const MenuAlquilarScreen: React.FC<Props> = ({ navigation, route }) => {
       {/* HEADER */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <Image source={require("../assets/logoTerminado.png")} style={styles.logo} />
-          <Text style={styles.brandName}>OpenLodge</Text>
+          <Image source={require("../assets/logoTerminado.png")} style={styles.logo}
+          /><Text style={styles.brandName}>OpenLodge</Text>
         </View>
 
         <View style={styles.controls}>
@@ -132,7 +143,7 @@ export const MenuAlquilarScreen: React.FC<Props> = ({ navigation, route }) => {
       {/* DETALLE */}
       <View style={styles.detail}>
         <Text style={styles.title}>{propiedad.titulo}</Text>
-
+        <Text style={styles.address}>{propiedad.direccion}</Text>
         {/* Carrusel */}
         <View style={styles.carousel}>
           <Image
@@ -140,7 +151,6 @@ export const MenuAlquilarScreen: React.FC<Props> = ({ navigation, route }) => {
             style={styles.imageLarge}
             resizeMode="cover"
           />
-          {/* (Botones < y > eliminados) */}
         </View>
 
         {/* CONTENIDO */}

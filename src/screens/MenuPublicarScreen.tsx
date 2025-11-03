@@ -37,7 +37,6 @@ export const MenuPublicarScreen: React.FC = () => {
     const [descripcion, setDescripcion] = useState("");
     const [precioPorNoche, setPrecioPorNoche] = useState("");
     const [numeroHuespedes, setNumeroHuespedes] = useState("");
-    const [imagenPrincipalUrl, setImagenPrincipalUrl] = useState(""); // Reemplaza el ImagePicker por ahora
 
     // Estados para cargar y seleccionar servicios
     const [serviciosMaestros, setServiciosMaestros] = useState<Servicio[]>([]);
@@ -100,7 +99,6 @@ export const MenuPublicarScreen: React.FC = () => {
                 direccion,
                 precioPorNoche: parseFloat(precioPorNoche),
                 numeroHuespedes: parseInt(numeroHuespedes),
-                imagenPrincipalUrl: imagenPrincipalUrl || '/img/propiedades/default.png', // Imagen por defecto
                 servicios: serviciosParaEnviar,
             };
 
@@ -229,19 +227,6 @@ export const MenuPublicarScreen: React.FC = () => {
                     onChangeText={setNumeroHuespedes}
                     placeholder="Ej: 4"
                 />
-
-                {/* Lógica de Imágenes (Simplificada por ahora) */}
-                <Text style={styles.label}>URL de Imagen Principal:</Text>
-                <Text style={styles.previewText}>(Por ahora, ingresa la URL de una imagen estática)</Text>
-                <TextInput
-                    style={styles.input}
-                    value={imagenPrincipalUrl}
-                    onChangeText={setImagenPrincipalUrl}
-                    placeholder="Ej: /img/propiedades/1/IMG1.jpg"
-                />
-                {/* El ImagePicker y la preview de imágenes se eliminan temporalmente
-                    porque la subida de archivos es un tema aparte (multipart/form-data)
-                    que no hemos implementado en el backend. */}
 
                 {/* SERVICIOS (CARGADOS DESDE LA API) */}
                 <Text style={styles.label}>Servicios incluidos:</Text>
