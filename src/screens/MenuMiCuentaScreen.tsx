@@ -99,6 +99,59 @@ export const MiCuentaScreen: React.FC = () => {
         }, [token])
     );
 
+    const cancelarMiReserva = (reserva: Reserva) => {
+        if (!token) {
+            Alert.alert("Error", "No estás autenticado.");
+            return;
+        }
+
+        // 1. Usamos 'Alert.alert' nativo para confirmar
+        Alert.alert(
+            "Confirmar Cancelación",
+            `¿Seguro que deseas cancelar tu reserva en "${reserva.propiedad.titulo}"?`,
+            [
+                { text: "No", style: "cancel" },
+                {
+                    text: "Sí, Cancelar",
+                    style: "destructive",
+                    onPress: async () => {
+                        setLoading(true);
+                        try {
+                            // 2. Llamamos a la API DELETE del Huésped
+                            const response = await fetch(`${API_URL}/api/reservas/mis-reservas/${reserva.id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            });
+
+                            if (response.status === 403) {
+                                Alert.alert("Error", "No tienes permiso o tu sesión expiró.");
+                                logout();
+                                return;
+                            }
+                            if (response.status === 409 || response.status === 400) {
+                                const errorMessage = await response.text();
+                                Alert.alert("No se pudo cancelar", errorMessage);
+                            } else if (!response.ok && response.status !== 204) {
+                                throw new Error("No se pudo cancelar la reserva.");
+                            } else {
+                                Alert.alert("Éxito", "Reserva cancelada correctamente.");
+                                // Recargamos la lista
+                                setReservas(prev => prev.filter((r) => r.id !== reserva.id));
+                            }
+
+                        } catch (err: any) {
+                            Alert.alert("Error", err.message || "Ocurrió un problema.");
+                        } finally {
+                            setLoading(false);
+                        }
+                    },
+                },
+            ]
+        );
+    };
+
     if (loading) {
         return (
             <View style={[styles.page, { justifyContent: "center", alignItems: "center" }]}>
@@ -113,8 +166,8 @@ export const MiCuentaScreen: React.FC = () => {
             {/* HEADER (Estilo Huésped) */}
             <View style={styles.header}>
                 <View style={styles.logoContainer}>
-                    <Image source={require("../assets/logoTerminado.png")} style={styles.logo} />
-                    <Text style={styles.brandName}>OpenLodge</Text>
+                    <Image source={require("../assets/logoTerminado.png")} style={styles.logo}
+                    /><Text style={styles.brandName}>OpenLodge</Text>
                 </View>
 
                 {/* Usamos 'topControls' como en el estilo de Historial */}
@@ -167,28 +220,52 @@ export const MiCuentaScreen: React.FC = () => {
                         <Text style={styles.emptyText}>No has realizado ninguna reserva.</Text>
                     ) : (
                         <View style={styles.grid}>
-                            {reservas.map((r) => (
-                                <View key={r.id} style={styles.card}>
-                                    <Image
-                                        source={
-                                            imagenes[r.propiedad.imagenPrincipalUrl]
-                                                ? imagenes[r.propiedad.imagenPrincipalUrl]
-                                                : require("../assets/propiedades/default.png")
-                                        }
-                                        style={styles.cardImage}
-                                    />
-                                    <Text style={styles.cardTitle}>{r.propiedad.titulo}</Text>
-                                    <Text style={styles.cardDesc}>
-                                        Desde: {r.fechaInicio}
-                                    </Text>
-                                    <Text style={styles.cardDesc}>
-                                        Hasta: {r.fechaFin}
-                                    </Text>
-                                    <Text style={styles.cardDesc}>
-                                        Total: ${r.precioTotal.toLocaleString()}
-                                    </Text>
-                                </View>
-                            ))}
+                            {reservas.map((r) => {
+                                // 4. Comprobamos si la reserva es futura
+                                const hoy = new Date();
+                                const fechaInicioReserva = new Date(r.fechaInicio + 'T00:00:00-03:00');
+                                hoy.setHours(0, 0, 0, 0);
+                                const esFutura = fechaInicioReserva > hoy;
+
+                                return (
+                                    <View key={r.id} style={styles.card}>
+                                        <Image
+                                            source={
+                                                imagenes[r.propiedad.imagenPrincipalUrl]
+                                                    ? imagenes[r.propiedad.imagenPrincipalUrl]
+                                                    : require("../assets/propiedades/default.png")
+                                            }
+                                            style={styles.cardImage}
+                                        />
+                                        <Text style={styles.cardTitle}>{r.propiedad.titulo}</Text>
+                                        <Text style={styles.cardDesc}>
+                                            Desde: {r.fechaInicio}
+                                        </Text>
+                                        <Text style={styles.cardDesc}>
+                                            Hasta: {r.fechaFin}
+                                        </Text>
+                                        <Text style={styles.cardDesc}>
+                                            Total: ${r.precioTotal.toLocaleString()}
+                                        </Text>
+
+                                        {/* 5. ¡NUEVO BOTÓN CONDICIONAL! */}
+                                        <View style={styles.actions}>
+                                            {esFutura ? (
+                                                <TouchableOpacity
+                                                    style={styles.btnCancelar}
+                                                    onPress={() => cancelarMiReserva(r)}
+                                                >
+                                                    <Text style={styles.btnCancelarText}>Cancelar reserva</Text>
+                                                </TouchableOpacity>
+                                            ) : (
+                                                <TouchableOpacity style={styles.btnDeshabilitado} disabled>
+                                                    <Text style={styles.btnDeshabilitadoText}>Reserva completada</Text>
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
+                                    </View>
+                                );
+                            })}
                         </View>
                     )}
                 </View>

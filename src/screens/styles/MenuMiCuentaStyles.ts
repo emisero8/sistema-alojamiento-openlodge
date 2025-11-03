@@ -155,4 +155,33 @@ export const styles = StyleSheet.create({
         color: "#777",
         marginVertical: 10,
     },
+    actions: {
+        marginTop: 'auto', // Empuja los botones al fondo
+        paddingTop: 10,
+    },
+    btnCancelar: {
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderColor: '#d32f2f',
+        borderRadius: 8,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        alignItems: 'center',
+    },
+    btnCancelarText: {
+        color: '#d32f2f',
+        fontWeight: '600',
+    },
+    btnDeshabilitado: {
+        backgroundColor: '#ccc',
+        borderWidth: 0,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    btnDeshabilitadoText: {
+        color: '#777',
+        fontWeight: '600',
+    },
 });
