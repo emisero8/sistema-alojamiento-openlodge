@@ -126,6 +126,14 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
         body: JSON.stringify(reservaParaAPI),
       });
 
+      if (response.status === 409) { // 409 Conflict
+        const errorMessage = await response.text();
+        showAlert("Reserva Fallida", errorMessage || "Las fechas seleccionadas ya no están disponibles.");
+        // Opcional: navegar de vuelta a la pantalla anterior
+        // navigation.goBack();
+        return; // No continuar
+      }
+
       if (response.status === 403) {
         Alert.alert("Error de permisos", "Solo los huéspedes pueden crear reservas. O tu sesión expiró.");
         logout();
@@ -151,8 +159,8 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <Image source={require("../assets/logoTerminado.png")} style={styles.logo} />
-          <Text style={styles.brandName}>OpenLodge</Text>
+          <Image source={require("../assets/logoTerminado.png")} style={styles.logo}
+          /><Text style={styles.brandName}>OpenLodge</Text>
         </View>
 
         <View style={styles.controls}>

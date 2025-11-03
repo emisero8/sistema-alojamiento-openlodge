@@ -7,21 +7,18 @@ import {
     Alert,
     ActivityIndicator,
 } from "react-native";
-// 1. Ya no necesitamos 'useNavigation' ni 'AsyncStorage'
-// import { useNavigation } from "@react-navigation/native";
-// import { StackNavigationProp } from "@react-navigation/stack";
-// import { RootStackParamList } from "../navigation/StackNavigation";
-import { loginStyles as styles } from "./styles/LoginStyles";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// 2. ¡Importamos nuestro hook 'useAuth' del contexto!
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/StackNavigation";
+import { loginStyles as styles } from "./styles/LoginStyles";
+
 import { useAuth } from "../context/AuthContext";
 
-// 3. Ya no necesitamos los types de navegación
-// type LoginScreenNavigationProp = StackNavigationProp<
-//     RootStackParamList,
-//     "Login"
-// >;
+type LoginScreenNavigationProp = StackNavigationProp<
+     RootStackParamList,
+     "Login"
+>;
 
 // 4. La API_URL también se fue (ahora está en el contexto)
 // const API_URL = "http://localhost:8080";
@@ -30,7 +27,7 @@ const LoginScreen: React.FC = () => {
     const [correo, setCorreo] = useState("");
     const [clave, setClave] = useState("");
     const [cargando, setCargando] = useState(false);
-    // const navigation = useNavigation<LoginScreenNavigationProp>(); // ⬅️ Ya no se usa
+     const navigation = useNavigation<LoginScreenNavigationProp>();
 
     // 5. Obtenemos la función 'login' de nuestro AuthContext
     const { login } = useAuth();
@@ -100,7 +97,7 @@ const LoginScreen: React.FC = () => {
                     </TouchableOpacity>
                 )}
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("Register")}>
                     <Text style={styles.link}>¿Primera vez? Crear cuenta</Text>
                 </TouchableOpacity>
 

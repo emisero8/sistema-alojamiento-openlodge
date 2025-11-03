@@ -95,7 +95,10 @@ export const MenuMiCuentaAnfitrionScreen: React.FC = () => {
 
                 <View style={styles.topControls}>
                     {/* ... (Botones de navegación) ... */}
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => navigation.navigate("MenuAnfitrion")}
+                    >
                         <Text style={styles.buttonText}>Menú principal</Text>
                     </TouchableOpacity>
                     <TouchableOpacity

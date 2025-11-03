@@ -13,9 +13,11 @@ import { MenuGestionarScreen } from "../screens/MenuGestionarScreen";
 import MenuPublicarScreen from "../screens/MenuPublicarScreen";
 import MenuMiCuentaScreen from "../screens/MenuMiCuentaScreen";
 import MenuMiCuentaAnfitrionScreen from "../screens/MenuMiCuentaAnfitrionScreen";
+import RegisterScreen from "../screens/RegisterScreen";
 
 export type RootStackParamList = {
     Login: undefined;
+    Register: undefined;
     /* Flujo de Huesped */
     MenuHuesped: undefined;
     MenuMiCuenta: undefined;
@@ -34,14 +36,16 @@ const Stack = createStackNavigator<RootStackParamList>();
 const StackNavigator = () => {
     // Llama al hook 'useAuth' para obtener las variables del contexto
     const { token, rol } = useAuth();
-    
+
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {token == null ? (
-                // --- STACK SI NO ESTÁ LOGUEADO ---
+                //STACK SI NO ESTÁ LOGUEADO ---
                 // Si no hay token, solo mostramos la pantalla de Login
-                <Stack.Screen name="Login" component={LoginScreen} />
-                // (Aquí también iría tu futura pantalla de Registro)
+                <>
+                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Register" component={RegisterScreen} />
+                </>
             ) : rol === 'HUESPED' ? (
                 // --- STACK SI ES ROL "HUESPED" ---
                 // Si hay token y el rol es Huesped, mostramos sus pantallas
