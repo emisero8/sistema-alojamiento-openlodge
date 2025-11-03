@@ -3,7 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, ActivityIndicator, View } from 'react-native';
 
 // 1. DEFINE LA IP DE TU API (¡la misma que en LoginScreen!)
-const API_URL = "http://localhost:8080";
+//const API_URL = "http://localhost:8080";
+const API_URL = "http://192.168.0.5:8080";
 
 // 2. Define la "forma" de tu contexto
 interface AuthContextType {

@@ -47,6 +47,9 @@ export const styles = StyleSheet.create({
     activeButton: {
         backgroundColor: "#ffc107",
     },
+    activeText: {
+        color: "#333",
+    },
     logoutBtn: {
         borderWidth: 2,
         borderColor: "#d32f2f",

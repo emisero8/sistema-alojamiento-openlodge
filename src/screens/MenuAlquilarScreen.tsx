@@ -120,7 +120,7 @@ export const MenuAlquilarScreen: React.FC<Props> = ({ navigation, route }) => {
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("MenuHuesped")}>
             <Text style={styles.buttonText}>Menú principal</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("MenuMiCuenta")}>
             <Text style={styles.buttonText}>Mi Cuenta</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
@@ -134,25 +134,14 @@ export const MenuAlquilarScreen: React.FC<Props> = ({ navigation, route }) => {
         <Text style={styles.title}>{propiedad.titulo}</Text>
 
         {/* Carrusel */}
-        {imagenesPropiedad.length > 0 && (
-          <View style={styles.carousel}>
-            <TouchableOpacity
-              onPress={() => setImagenActual((prev) => (prev - 1 + imagenesPropiedad.length) % imagenesPropiedad.length)}
-              style={styles.navBtn}
-            >
-              <Text style={styles.navBtnText}>‹</Text>
-            </TouchableOpacity>
-
-            <Image source={imagenesPropiedad[imagenActual]} style={styles.imageLarge} resizeMode="cover" />
-
-            <TouchableOpacity
-              onPress={() => setImagenActual((prev) => (prev + 1) % imagenesPropiedad.length)}
-              style={[styles.navBtn, { right: 10 }]}
-            >
-              <Text style={styles.navBtnText}>›</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        <View style={styles.carousel}>
+          <Image
+            source={imagenes[propiedad.imagenPrincipalUrl] || require("../assets/logoTerminado.png")}
+            style={styles.imageLarge}
+            resizeMode="cover"
+          />
+          {/* (Botones < y > eliminados) */}
+        </View>
 
         {/* CONTENIDO */}
         <View style={styles.columns}>

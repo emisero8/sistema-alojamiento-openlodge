@@ -25,7 +25,7 @@ type MenuPublicarNavigationProp = StackNavigationProp<
 >;
 
 // Definimos la URL de la API
-const API_URL = 'http://localhost:8080';
+const API_URL = 'http://192.168.0.5:8080';
 
 export const MenuPublicarScreen: React.FC = () => {
     const navigation = useNavigation<MenuPublicarNavigationProp>();
@@ -135,14 +135,19 @@ export const MenuPublicarScreen: React.FC = () => {
     };
 
     const cancelar = () => {
-        // Usamos window.confirm() que sí funciona en web
-        const confirmacion = window.confirm("¿Deseas descartar los cambios?");
-
-        if (confirmacion) {
-            // Si el usuario presiona "Aceptar", navegamos
-            navigation.navigate("MenuAnfitrion");
-        }
-        // Si presiona "Cancelar", no hace nada
+        // Usamos Alert.alert nativo
+        Alert.alert(
+            "Cancelar",
+            "¿Deseas descartar los cambios?",
+            [
+                { text: "No", style: "cancel" },
+                {
+                    text: "Sí",
+                    style: "destructive",
+                    onPress: () => navigation.navigate("MenuAnfitrion")
+                }
+            ]
+        );
     };
 
     return (
@@ -154,11 +159,33 @@ export const MenuPublicarScreen: React.FC = () => {
                     <Image
                         source={require("../assets/logoTerminado.png")}
                         style={styles.logo}
-                    />
-                    <Text style={styles.brandName}>OpenLodge</Text>
+                    /><Text style={styles.brandName}>OpenLodge</Text>
                 </View>
                 <View style={styles.controls}>
                     {/* ... (Tus botones de navegación) ... */}
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => navigation.navigate("MenuAnfitrion")}
+                    >
+                        <Text style={styles.buttonText}>Menú principal</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.button]}
+                        onPress={() => navigation.navigate("MenuMiCuentaA")}
+                    >
+                        <Text style={[styles.buttonText]}>Historial</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => navigation.navigate("MenuGestionar")}
+                    >
+                        <Text style={styles.buttonText}>Gestionar reservas</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.button, styles.activeButton]}
+                    >
+                        <Text style={[styles.buttonText, styles.activeText]}>Publicar propiedad</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
                         <Text style={styles.logoutText}>Cerrar sesión</Text>
                     </TouchableOpacity>
@@ -263,7 +290,7 @@ export const MenuPublicarScreen: React.FC = () => {
                             <Text style={styles.btnText}>Finalizar Publicación</Text>
                         )}
                     </TouchableOpacity>
-                    
+
                     <TouchableOpacity style={styles.btnDanger} onPress={cancelar} disabled={loading}>
                         <Text style={styles.btnText}>Cancelar</Text>
                     </TouchableOpacity>

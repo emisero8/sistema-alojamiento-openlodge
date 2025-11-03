@@ -19,7 +19,7 @@ import { useAuth } from "../context/AuthContext";
 import { Propiedad, Servicio } from "../types/Propiedad";
 
 // Define la URL de la API
-const API_URL = 'http://localhost:8080';
+const API_URL = 'http://192.168.0.5:8080';
 
 // Define el tipo de los parámetros de la ruta
 type MenuEditarRouteProp = RouteProp<RootStackParamList, 'MenuEditar'>;
@@ -142,14 +142,19 @@ export const MenuEditarScreen: React.FC = () => {
     };
 
     const cancelar = () => {
-        // Usamos window.confirm() que sí funciona en web
-        const confirmacion = window.confirm("¿Deseas descartar los cambios?");
-
-        if (confirmacion) {
-            // Si el usuario presiona "Aceptar", navegamos
-            navigation.navigate("MenuAnfitrion");
-        }
-        // Si presiona "Cancelar", no hace nada
+        // Usamos Alert.alert nativo
+        Alert.alert(
+            "Cancelar Cambios",
+            "¿Deseas descartar los cambios?",
+            [
+                { text: "No", style: "cancel" },
+                {
+                    text: "Sí",
+                    style: "destructive",
+                    onPress: () => navigation.navigate("MenuAnfitrion")
+                }
+            ]
+        );
     };
 
     return (

@@ -10,20 +10,22 @@ import MenuAnfitrionScreen from "../screens/MenuAnfitrionScreen";
 import MenuEditarScreen from "../screens/MenuEditarScreen";
 import { Propiedad } from "../types/Propiedad";
 import { MenuGestionarScreen } from "../screens/MenuGestionarScreen";
-import MenuHistorialScreen from "../screens/MenuHistorialScreen";
 import MenuPublicarScreen from "../screens/MenuPublicarScreen";
+import MenuMiCuentaScreen from "../screens/MenuMiCuentaScreen";
+import MenuMiCuentaAnfitrionScreen from "../screens/MenuMiCuentaAnfitrionScreen";
 
 export type RootStackParamList = {
     Login: undefined;
     /* Flujo de Huesped */
     MenuHuesped: undefined;
+    MenuMiCuenta: undefined;
     MenuAlquilar: { propiedad: any };
     MenuPago: { reserva: any };
     /* Flujo de Anfitrion */
     MenuAnfitrion: undefined;
     MenuEditar: { propiedad: Propiedad };
     MenuGestionar: undefined;
-    MenuHistorial: undefined;
+    MenuMiCuentaA: undefined;
     MenuPublicar: undefined;
 };
 
@@ -45,6 +47,7 @@ const StackNavigator = () => {
                 // Si hay token y el rol es Huesped, mostramos sus pantallas
                 <>
                     <Stack.Screen name="MenuHuesped" component={MenuHuespedScreen} />
+                    <Stack.Screen name="MenuMiCuenta" component={MenuMiCuentaScreen} />
                     <Stack.Screen name="MenuAlquilar" component={MenuAlquilarScreen} />
                     <Stack.Screen name="MenuPago" component={MenuPagoScreen} />
                     {/* Aquí puedes agregar más pantallas de Huesped */}
@@ -55,7 +58,7 @@ const StackNavigator = () => {
                     <Stack.Screen name="MenuAnfitrion" component={MenuAnfitrionScreen} />
                     <Stack.Screen name="MenuEditar" component={MenuEditarScreen} />
                     <Stack.Screen name="MenuGestionar" component={MenuGestionarScreen} />
-                    <Stack.Screen name="MenuHistorial" component={MenuHistorialScreen} />
+                    <Stack.Screen name="MenuMiCuentaA" component={MenuMiCuentaAnfitrionScreen} />
                     <Stack.Screen name="MenuPublicar" component={MenuPublicarScreen} />
                     {/* Aquí puedes agregar más pantallas de Anfitrion */}
                 </>

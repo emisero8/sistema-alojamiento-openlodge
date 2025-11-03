@@ -15,7 +15,7 @@ interface Props {
   route: MenuPagoRouteProp;
 }
 
-const API_URL = "http://localhost:8080";
+const API_URL = "http://192.168.0.5:8080";
 
 interface ReservaParcial {
   propiedadId: number;

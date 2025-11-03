@@ -30,7 +30,7 @@ const imagenes: Record<string, any> = {
 };
 
 // 5. Definimos la URL de la API
-const API_URL = "http://localhost:8080";
+const API_URL = "http://192.168.0.5:8080";
 
 type MenuAnfitrionNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -100,47 +100,49 @@ export const MenuAnfitrionScreen: React.FC = () => {
       return;
     }
 
-    // 1. Usamos 'window.confirm' en lugar de 'Alert.alert' para la web
-    //    Esto mostrará un pop-up simple de Aceptar/Cancelar.
-    const confirmacion = window.confirm(
-      "¿Seguro que deseas eliminar esta propiedad? Esta acción no se puede deshacer."
+    // 1. Reemplazamos 'window.confirm' por 'Alert.alert' nativo
+    Alert.alert(
+      "Confirmar Baja",
+      "¿Seguro que deseas eliminar esta propiedad? Esta acción no se puede deshacer.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive", // Color rojo en nativo
+          onPress: async () => {
+            setLoading(true);
+            try {
+              // 2. Llamamos a la API (tu lógica está perfecta)
+              const response = await fetch(`${API_URL}/api/propiedades/${id}`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+
+              if (response.status === 403) {
+                Alert.alert("Error", "No tienes permiso para borrar esta propiedad o tu sesión expiró.");
+                logout();
+                return;
+              }
+              if (!response.ok) {
+                throw new Error("No se pudo eliminar la propiedad.");
+              }
+
+              // 3. ¡Éxito!
+              Alert.alert("Éxito", "Propiedad eliminada correctamente.");
+              setPropiedades(prev => prev.filter((p) => p.id !== id));
+              setPropSeleccionada(null); // Limpiamos la selección
+
+            } catch (err: any) {
+              Alert.alert("Error", err.message || "Ocurrió un problema.");
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
     );
-
-    // 2. Si el usuario presiona "Cancelar", 'confirmacion' será false
-    if (!confirmacion) {
-      return; // No hacemos nada
-    }
-
-    // 3. Si el usuario presionó "Aceptar", ejecutamos la lógica de borrado
-    setLoading(true); // Mostramos spinner
-    try {
-      // 4. Llamamos a la API con el método DELETE y el token
-      const response = await fetch(`${API_URL}/api/propiedades/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.status === 403) {
-        Alert.alert("Error", "No tienes permiso para borrar esta propiedad o tu sesión expiró.");
-        logout(); // Forzamos logout por seguridad
-        return;
-      }
-      if (!response.ok) {
-        throw new Error("No se pudo eliminar la propiedad.");
-      }
-
-      // 5. ¡Éxito! Usamos 'Alert.alert' simple (que sí funciona)
-      Alert.alert("Éxito", "Propiedad eliminada correctamente.");
-      setPropiedades(prev => prev.filter((p) => p.id !== id));
-      setPropSeleccionada(null); // Limpiamos la selección
-
-    } catch (err: any) {
-      Alert.alert("Error", err.message || "Ocurrió un problema.");
-    } finally {
-      setLoading(false); // Ocultamos spinner
-    }
   };
 
   // --- Editar propiedad ---
@@ -163,24 +165,24 @@ export const MenuAnfitrionScreen: React.FC = () => {
     <View style={styles.page}>
       {/* HEADER */}
       <View style={styles.header}>
-        {/* ... (Tu logo y brandName quedan igual) ... */}
+        {/* Logo y marca */}
         <View style={styles.logoContainer}>
           <Image
             source={require("../assets/logoTerminado.png")}
             style={styles.logo}
-          /> <Text style={styles.brandName}>OpenLodge</Text>
+          /><Text style={styles.brandName}>OpenLodge</Text>
         </View>
 
         <View style={styles.controls}>
-          {/* ... (Tus botones de navegación quedan igual) ... */}
+          {/* ... (Botones de navegación) ... */}
           <TouchableOpacity style={[styles.button, styles.activeButton]}>
             <Text style={styles.buttonText}>Menú principal</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("MenuHistorial")}
+            onPress={() => navigation.navigate("MenuMiCuentaA")}
           >
-            <Text style={styles.buttonText}>Historial</Text>
+            <Text style={styles.buttonText}>Mi Cuenta</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
@@ -195,7 +197,6 @@ export const MenuAnfitrionScreen: React.FC = () => {
             <Text style={styles.buttonText}>Publicar propiedad</Text>
           </TouchableOpacity>
 
-          {/* 10. ¡Botón de Logout CONECTADO! */}
           <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
             <Text style={styles.logoutText}>Cerrar sesión</Text>
           </TouchableOpacity>
@@ -203,15 +204,16 @@ export const MenuAnfitrionScreen: React.FC = () => {
       </View>
 
       {/* MAIN */}
-      <View style={styles.main}>
-        {/* LISTADO DE PROPIEDADES */}
+      {/* 1. LÓGICA CONDICIONAL */}
+      {propSeleccionada === null ? (
+
+        // --- VISTA DE LISTA ---
         <ScrollView
           style={styles.cardArea}
           contentContainerStyle={styles.cardContent}
         >
-          {/* 11. Manejo de error y lista vacía */}
+          {/* (Tu JSX de 'error' y 'lista vacía' queda igual) */}
           {error && <Text style={styles.detailEmpty}>Error: {error}</Text>}
-
           {!loading && !error && propiedades.length === 0 && (
             <Text style={styles.detailEmpty}>
               No se encontraron propiedades. ¡Publica tu primera propiedad!
@@ -221,19 +223,10 @@ export const MenuAnfitrionScreen: React.FC = () => {
           {propiedades.map((p) => (
             <TouchableOpacity
               key={p.id}
-              style={[
-                styles.card,
-                propSeleccionada?.id === p.id && {
-                  borderColor: "#4caf50",
-                  borderWidth: 2,
-                },
-              ]}
-              onPress={() => setPropSeleccionada(p)}
+              style={styles.card} // El borde seleccionado ya no es necesario
+              onPress={() => setPropSeleccionada(p)} // ⬅️ Muestra el detalle
             >
-              {/* 12. CAMBIO: p.title ahora es p.titulo */}
               <Text style={styles.address}>{p.titulo}</Text>
-
-              {/* Tu lógica de 'imagenes' sigue funcionando si los IDs coinciden */}
               <Image
                 source={imagenes[p.imagenPrincipalUrl] || require("../assets/logoTerminado.png")}
                 style={styles.image}
@@ -241,7 +234,7 @@ export const MenuAnfitrionScreen: React.FC = () => {
               <View style={styles.actions}>
                 <TouchableOpacity
                   style={styles.seeBtn}
-                  onPress={() => setPropSeleccionada(p)}
+                  onPress={() => setPropSeleccionada(p)} // ⬅️ Muestra el detalle
                 >
                   <Text style={styles.seeBtnText}>Ver detalles</Text>
                 </TouchableOpacity>
@@ -250,58 +243,61 @@ export const MenuAnfitrionScreen: React.FC = () => {
           ))}
         </ScrollView>
 
-        {/* PANEL DE DETALLE */}
+      ) : (
+
+        // --- VISTA DE DETALLE ---
         <View style={styles.detail}>
-          {propSeleccionada ? (
-            <>
-              {/* 13. CAMBIO: propSeleccionada.title ahora es .titulo */}
-              <Text style={styles.detailTitle}>{propSeleccionada.titulo}</Text>
-              <Image
-                source={imagenes[propSeleccionada.imagenPrincipalUrl] || require("../assets/logoTerminado.png")}
-                style={[styles.image, { height: 180, marginBottom: 10 }]}
-              />
-              <Text style={styles.detailSubtitle}>Descripción:</Text>
-              <ScrollView style={{ flex: 1 }}>
-                {/* 14. CAMBIO: Reemplazamos 'details' por 'descripcion' y 'servicios' */}
-                <Text style={styles.detailItem}>
-                  {propSeleccionada.descripcion}
-                </Text>
+          <>
+            <Text style={styles.detailTitle}>{propSeleccionada.titulo}</Text>
+            <Image
+              source={imagenes[propSeleccionada.imagenPrincipalUrl] || require("../assets/logoTerminado.png")}
+              style={[styles.image, { height: 180, marginBottom: 10 }]}
+            />
+            <Text style={styles.detailSubtitle}>Descripción:</Text>
+            <ScrollView style={{ flex: 1 }}>
+              {/* (Tu JSX de descripción y servicios queda igual) */}
+              <Text style={styles.detailItem}>
+                {propSeleccionada.descripcion}
+              </Text>
+              <Text style={styles.detailSubtitle}>Servicios:</Text>
+              {propSeleccionada.servicios.length > 0 ? (
+                propSeleccionada.servicios.map((s) => (
+                  <Text key={s.id} style={styles.detailItem}>
+                    • {s.nombre}
+                  </Text>
+                ))
+              ) : (
+                <Text style={styles.detailItem}>No hay servicios asignados.</Text>
+              )}
+            </ScrollView>
 
-                <Text style={styles.detailSubtitle}>Servicios:</Text>
-                {propSeleccionada.servicios.length > 0 ? (
-                  propSeleccionada.servicios.map((s) => (
-                    <Text key={s.id} style={styles.detailItem}>
-                      • {s.nombre}
-                    </Text>
-                  ))
-                ) : (
-                  <Text style={styles.detailItem}>No hay servicios asignados.</Text>
-                )}
-              </ScrollView>
+            {/* 2. FOOTER ACTUALIZADO CON 3 BOTONES */}
+            <View style={styles.footer}>
+              <TouchableOpacity
+                style={styles.btnPrimary}
+                onPress={() => editarPropiedad(propSeleccionada!)}
+              >
+                <Text style={styles.btnText}>Editar</Text>
+              </TouchableOpacity>
 
-              <View style={styles.footer}>
-                <TouchableOpacity
-                  style={styles.btnPrimary}
-                  onPress={() => editarPropiedad(propSeleccionada!)}
-                >
-                  <Text style={styles.btnText}>Editar detalles</Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.btnGhost}
+                onPress={() => darDeBaja(propSeleccionada.id)}
+              >
+                <Text style={styles.btnGhostText}>Dar de baja</Text>
+              </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.btnGhost}
-                  onPress={() => darDeBaja(propSeleccionada.id)}
-                >
-                  <Text style={styles.btnGhostText}>Dar de baja</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          ) : (
-            <Text style={styles.detailEmpty}>
-              Selecciona una propiedad para ver sus detalles.
-            </Text>
-          )}
+              {/* 3. ¡BOTÓN AÑADIDO PARA VOLVER! */}
+              <TouchableOpacity
+                style={styles.btnSecondary} // Usa el nuevo estilo
+                onPress={() => setPropSeleccionada(null)} // ⬅️ Oculta el detalle
+              >
+                <Text style={styles.btnText}>Volver</Text>
+              </TouchableOpacity>
+            </View>
+          </>
         </View>
-      </View>
+      )}
     </View>
   );
 };

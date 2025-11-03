@@ -4,13 +4,12 @@ export const styles = StyleSheet.create({
     page: {
         /*flex: 1,*/
         backgroundColor: "#fffbe6",
-        paddingTop: 40,
+        padding: 16,
     },
     header: {
         alignItems: "center",
         gap: 12,
         marginBottom: 20,
-        width: '100%',
     },
     logoContainer: {
         flexDirection: "row",
@@ -24,15 +23,14 @@ export const styles = StyleSheet.create({
     },
     brandName: {
         fontWeight: "700",
-        fontSize: 24,
+        fontSize: 22,
         color: "#2e7d32",
     },
-    controls: {
+    topControls: {
         flexDirection: "row",
-        alignItems: "center",
         flexWrap: "wrap",
         justifyContent: "center",
-        gap: 8,
+        gap: 10,
         marginTop: 10,
     },
     button: {
@@ -63,89 +61,98 @@ export const styles = StyleSheet.create({
         color: "#d32f2f",
         fontWeight: "600",
     },
-    topControls: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: 10,
+    main: {
+        flexDirection: "column",
+        gap: 16,
     },
-    btnNav: {
-        backgroundColor: "#4caf50",
-        borderRadius: 6,
-        paddingVertical: 8,
-        paddingHorizontal: 14,
-        margin: 5,
-    },
-    btnActive: {
-        backgroundColor: "#ffc107",
-    },
-    btnText: {
-        color: "#fff",
-        fontWeight: "600",
-    },
-    textActive: {
-        color: "#333",
-    },
-    container: {
+    sidebar: {
+        //flex: 0.35,
+        //minWidth: 240,
         backgroundColor: "#fff",
-        padding: 20,
         borderRadius: 10,
-        width: "90%",
+        padding: 15,
+        borderWidth: 1,
+        borderColor: "#ccc",
         shadowColor: "#000",
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.05,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
         elevation: 3,
     },
-    title: {
+    sidebarTitle: {
+        fontSize: 18,
+        marginBottom: 8,
+    },
+    profilePic: {
+        alignItems: "center",
+        marginVertical: 10,
+    },
+    profileImage: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+    },
+    sidebarSubtitle: {
+        fontSize: 15,
+        fontWeight: "600",
+        marginTop: 8,
+    },
+    sidebarList: {
+        marginTop: 6,
+        marginLeft: 10,
+    },
+    listItem: {
+        fontSize: 14,
+        color: "#444",
+        marginVertical: 2,
+    },
+    content: {
+        //flex: 1,
+    },
+    sectionTitle: {
         fontSize: 18,
         fontWeight: "700",
+        marginTop: 10,
+        marginBottom: 6,
+    },
+    grid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 12,
+        justifyContent: 'flex-start',
+    },
+    card: {
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: "#ddd",
+        padding: 12,
+        flexBasis: '48%',
+        shadowColor: "#000",
+        shadowOpacity: 0.08,
+        shadowRadius: 5,
+        elevation: 3,
+    },
+    cardImage: {
+        width: "100%",
+        height: 150,
+        borderRadius: 6,
+        marginBottom: 6,
+    },
+    cardTitle: {
+        fontWeight: "600",
+        fontSize: 14,
         textAlign: "center",
-        marginBottom: 15,
+        color: "#333",
+    },
+    cardDesc: {
+        textAlign: "center",
+        fontSize: 13,
+        color: "#555",
     },
     emptyText: {
         textAlign: "center",
         color: "#777",
-        marginTop: 20,
-    },
-    solicitud: {
-        borderWidth: 1,
-        borderColor: "#ddd",
-        borderRadius: 10,
-        padding: 14,
-        marginBottom: 12,
-        backgroundColor: "#fff",
-        shadowColor: "#000",
-        shadowOpacity: 0.05,
-        shadowOffset: { width: 0, height: 1 },
-        shadowRadius: 2,
-    },
-    propiedad: {
-        fontWeight: "600",
-        marginBottom: 8,
-        fontSize: 16,
-        color: "#333",
-    },
-    text: {
-        fontSize: 14,
-        marginBottom: 4,
-    },
-    acciones: {
-        flexDirection: "row",
-        justifyContent: "center",
-        gap: 10,
-        marginTop: 10,
-    },
-    btnAceptar: {
-        backgroundColor: "#4caf50",
-        borderRadius: 6,
-        paddingVertical: 8,
-        paddingHorizontal: 14,
-    },
-    btnCancelar: {
-        backgroundColor: "#d32f2f",
-        borderRadius: 6,
-        paddingVertical: 8,
-        paddingHorizontal: 14,
+        marginVertical: 10,
     },
 });

@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
     page: {
-        flex: 1,
+        flex: 1, // Es importante que el 'page' principal ocupe todo el espacio
         backgroundColor: '#fffbe6',
         padding: 16,
     },
@@ -73,34 +73,36 @@ export const styles = StyleSheet.create({
     // --- MAIN LAYOUT ---
     main: {
         flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        gap: 16,
+        //flexDirection: 'column', // ⬅️ CAMBIO: Por defecto, se apilan en columna
+        //flexWrap: 'wrap',        // ⬅️ AÑADIDO: Permite que los elementos se envuelvan
+        //justifyContent: 'flex-start', // Opcional, para alinear al inicio
+        //alignItems: 'stretch',   // ⬅️ CAMBIO: Para que los elementos se estiren en el eje transversal
+        //gap: 16, // Espacio entre cardArea y detail
     },
 
     // --- ZONA DE TARJETAS ---
     cardArea: {
-        flex: 3,
-        height: 650, // altura del contenedor con scroll
-        borderWidth: 2,          // borde más visible
-        borderColor: "#ddd",  // color que destaque
-        borderRadius: 10,        // opcional, para esquinas redondeadas
+        flex: 1,
+        // height: 650, // ⬅️ BORRADO (Ya lo habíamos quitado)
+        borderWidth: 2,
+        borderColor: "#ddd",
+        borderRadius: 10,
         padding: 8,
     },
     cardContent: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         paddingBottom: 20,
         gap: 16,
+        flexGrow: 1,
     },
     card: {
         backgroundColor: '#fff',
         borderWidth: 1,
         borderColor: '#ddd',
         borderRadius: 8,
-        width: '47%', // dos columnas
+        flexBasis: '47%',
         padding: 12,
         elevation: 3,
     },
@@ -136,13 +138,14 @@ export const styles = StyleSheet.create({
 
     // --- PANEL DE DETALLE ---
     detail: {
-        flex: 0.5, // más angosto (≈25–30% del ancho total)
+        flex: 1,
+        // height: 650, // ⬅️ BORRADO (Ya lo habíamos quitado)
         borderWidth: 2,
         borderColor: '#cfcfcf',
         borderRadius: 10,
         padding: 16,
         backgroundColor: '#fff',
-        height: 650,
+        marginTop: 16, // ⬅️ AÑADIDO: Espacio superior cuando está apilado
         justifyContent: 'flex-start',
     },
     detailEmpty: {

@@ -62,13 +62,13 @@ export const styles = StyleSheet.create({
         fontWeight: "600",
     },
     main: {
-        flexDirection: "row",
-        flexWrap: "wrap",
+        flexDirection: "column",
+        //flexWrap: "wrap",
         gap: 16,
     },
     sidebar: {
-        flex: 0.35,
-        minWidth: 240,
+        //flex: 0.35,
+        //minWidth: 240,
         backgroundColor: "#fff",
         borderRadius: 10,
         padding: 15,
@@ -108,7 +108,7 @@ export const styles = StyleSheet.create({
         marginVertical: 2,
     },
     content: {
-        flex: 1,
+        //flex: 1,
     },
     sectionTitle: {
         fontSize: 18,
@@ -120,6 +120,7 @@ export const styles = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
         gap: 12,
+        justifyContent: 'flex-start',
     },
     card: {
         backgroundColor: "#fff",
@@ -127,7 +128,7 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "#ddd",
         padding: 12,
-        width: "47%",
+        flexBasis: '47%',
         shadowColor: "#000",
         shadowOpacity: 0.08,
         shadowRadius: 5,
