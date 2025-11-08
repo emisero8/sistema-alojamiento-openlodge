@@ -11,7 +11,6 @@ import {
   Alert,
 } from "react-native";
 import { styles } from "./styles/MenuHuespedStyles";
-import propiedadesData from "../data/propiedades.json";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/StackNavigation";
@@ -24,20 +23,6 @@ type MenuHuespedNavigationProp = StackNavigationProp<
   "MenuHuesped"
 >;
 
-
-/*const imagenes: Record<string, any> = {
-  "1": require("../assets/propiedades/1/IMG1.jpg"),
-  "2": require("../assets/propiedades/2/IMG1.jpg"),
-  "3": require("../assets/propiedades/3/IMG1.jpg"),
-  "4": require("../assets/propiedades/4/IMG1.jpg"),
-  "5": require("../assets/propiedades/5/IMG1.jpg"),
-  "6": require("../assets/propiedades/6/IMG1.jpg"),
-  "7": require("../assets/propiedades/7/IMG1.jpg"),
-  "8": require("../assets/propiedades/8/IMG1.jpg"),
-  "9": require("../assets/propiedades/9/IMG1.jpg"),
-};*/
-
-// La clave AHORA es el path de la imagen
 const imagenes: Record<string, any> = {
   "/img/propiedades/1/IMG1.jpg": require("../assets/propiedades/1/IMG1.jpg"),
   "/img/propiedades/2/IMG1.jpg": require("../assets/propiedades/2/IMG1.jpg"),
@@ -50,7 +35,7 @@ const imagenes: Record<string, any> = {
   "/img/propiedades/9/IMG1.jpg": require("../assets/propiedades/9/IMG1.jpg"),
 };
 
-const API_URL = "http://192.168.0.5:8080";
+const API_URL = "http://172.20.10.2:8080";
 
 export const MenuHuespedScreen: React.FC = () => {
   const navigation = useNavigation<MenuHuespedNavigationProp>();
@@ -67,13 +52,11 @@ export const MenuHuespedScreen: React.FC = () => {
   const [propSeleccionada, setPropSeleccionada] = useState<Propiedad | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // --- Cargar propiedades (Lógica reemplazada) ---
   const cargarPropiedades = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Este es el endpoint PÚBLICO, no necesita token
       const response = await fetch(`${API_URL}/api/propiedades`, {
         method: 'GET',
       });
@@ -93,22 +76,20 @@ export const MenuHuespedScreen: React.FC = () => {
     }
   };
 
-  // Usamos 'useFocusEffect' para recargar cada vez que vemos la pantalla
   useFocusEffect(
     useCallback(() => {
       cargarPropiedades();
-    }, []) // Dependencia vacía, se ejecuta solo al enfocar
+    }, [])
   );
 
-  // Lógica de filtrado (ACTUALIZADA con los campos de la API)
+  // Lógica de filtrado
   const propiedadesFiltradas = propiedades.filter((p) => {
-    // Buscamos por 'direccion' O 'titulo'
     const matchDireccion = p.direccion.toLowerCase().includes(busqueda.toLowerCase());
     const matchTitulo = p.titulo.toLowerCase().includes(busqueda.toLowerCase());
 
     const min = precioMin ? parseInt(precioMin) : 0;
     const max = precioMax ? parseInt(precioMax) : Infinity;
-    // CAMBIO: p.price -> p.precioPorNoche
+
     const matchPrecio = p.precioPorNoche >= min && p.precioPorNoche <= max;
 
     return (matchDireccion || matchTitulo) && matchPrecio;
@@ -129,8 +110,8 @@ export const MenuHuespedScreen: React.FC = () => {
         {/* HEADER */}
         <View style={styles.header}>
           <View style={styles.logoContainer}>
-            <Image source={require("../assets/logoTerminado.png")} style={styles.logo} />
-            <Text style={styles.brandName}>OpenLodge</Text>
+            <Image source={require("../assets/logoTerminado.png")} style={styles.logo}
+            /><Text style={styles.brandName}>OpenLodge</Text>
           </View>
 
           <View style={styles.controls}>
@@ -160,14 +141,8 @@ export const MenuHuespedScreen: React.FC = () => {
 
         {/* MAIN */}
         <View style={styles.main}>
-          {/* * 1. LÓGICA CONDICIONAL:
-          * Si 'propSeleccionada' es null, mostramos la lista.
-          * Si tiene un objeto, mostramos solo el detalle.
-          */}
           {/* LISTA DE PROPIEDADES */}
           {propSeleccionada === null ? (
-
-            // --- VISTA DE LISTA (lo que antes era cardArea) ---
             <ScrollView
               style={styles.cardArea}
               contentContainerStyle={styles.cardContent}
@@ -182,9 +157,8 @@ export const MenuHuespedScreen: React.FC = () => {
                   key={p.id}
                   style={[
                     styles.card,
-                    // (El borde seleccionado ya no es necesario aquí, pero no hace daño)
                   ]}
-                  onPress={() => setPropSeleccionada(p)} // ⬅️ Esto activa la vista de detalle
+                  onPress={() => setPropSeleccionada(p)}
                 >
                   <Text style={styles.address}>{p.titulo}</Text>
                   <Text style={styles.addressDetail}>{p.direccion}</Text>
@@ -204,12 +178,8 @@ export const MenuHuespedScreen: React.FC = () => {
 
           ) : (
 
-            // --- VISTA DE DETALLE (lo que antes era detail) ---
+            // Vista de detalle
             <View style={styles.detail}>
-              {/* * 2. MOSTRAR DETALLE:
-              * Ya no necesitamos '{propSeleccionada ? ...}' aquí dentro,
-              * porque esta vista SOLO se muestra si propSeleccionada NO es null.
-              */}
               <>
                 <Text style={styles.detailTitle}>{propSeleccionada.titulo}</Text>
                 <Text style={styles.detailDireccion}>{propSeleccionada.direccion}</Text>
@@ -247,7 +217,7 @@ export const MenuHuespedScreen: React.FC = () => {
 
                   <TouchableOpacity
                     style={[styles.button, { backgroundColor: "#ccc", flex: 1 }]}
-                    onPress={() => setPropSeleccionada(null)} // ⬅️ Esto vuelve a la lista
+                    onPress={() => setPropSeleccionada(null)}
                   >
                     <Text style={[styles.buttonText, { color: "#000" }]}>Cancelar</Text>
                   </TouchableOpacity>

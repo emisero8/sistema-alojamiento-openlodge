@@ -47,7 +47,7 @@ const imagenes: Record<string, any> = {
     "/img/propiedades/9/IMG1.jpg": require("../assets/propiedades/9/IMG1.jpg"),
 };
 
-const API_URL = "http://192.168.0.5:8080";
+const API_URL = "http://172.20.10.2:8080";
 
 type MiCuentaNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -163,14 +163,13 @@ export const MiCuentaScreen: React.FC = () => {
 
     return (
         <ScrollView style={[styles.page, { height: "100vh" } as any]} contentContainerStyle={{ paddingBottom: 40 }}>
-            {/* HEADER (Estilo Huésped) */}
+            {/* HEADER */}
             <View style={styles.header}>
                 <View style={styles.logoContainer}>
                     <Image source={require("../assets/logoTerminado.png")} style={styles.logo}
                     /><Text style={styles.brandName}>OpenLodge</Text>
                 </View>
 
-                {/* Usamos 'topControls' como en el estilo de Historial */}
                 <View style={styles.topControls}>
                     <TouchableOpacity
                         style={styles.button}
@@ -187,9 +186,9 @@ export const MiCuentaScreen: React.FC = () => {
                 </View>
             </View>
 
-            {/* MAIN (Usando la estructura de Historial: sidebar + content) */}
+            {/* MAIN */}
             <View style={styles.main}>
-                {/* SIDEBAR (Con info del Huésped) */}
+                {/* SIDEBAR */}
                 <View style={styles.sidebar}>
                     <Text style={styles.sidebarTitle}>
                         Bienvenido, <Text style={{ fontWeight: "700" }}>{nombre} {apellido}</Text>
@@ -210,7 +209,7 @@ export const MiCuentaScreen: React.FC = () => {
                     </View>
                 </View>
 
-                {/* CONTENIDO (Historial de Reservas del Huésped) */}
+                {/* CONTENIDO */}
                 <View style={styles.content}>
                     <Text style={styles.sectionTitle}>Mi Historial de Reservas:</Text>
 
@@ -221,7 +220,6 @@ export const MiCuentaScreen: React.FC = () => {
                     ) : (
                         <View style={styles.grid}>
                             {reservas.map((r) => {
-                                // 4. Comprobamos si la reserva es futura
                                 const hoy = new Date();
                                 const fechaInicioReserva = new Date(r.fechaInicio + 'T00:00:00-03:00');
                                 hoy.setHours(0, 0, 0, 0);
@@ -248,7 +246,6 @@ export const MiCuentaScreen: React.FC = () => {
                                             Total: ${r.precioTotal.toLocaleString()}
                                         </Text>
 
-                                        {/* 5. ¡NUEVO BOTÓN CONDICIONAL! */}
                                         <View style={styles.actions}>
                                             {esFutura ? (
                                                 <TouchableOpacity

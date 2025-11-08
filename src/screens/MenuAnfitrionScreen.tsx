@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react"; // 1. Importamos useCallback
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -9,12 +9,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { styles } from "./styles/MenuAnfitrionStyles";
-// import propiedadesData from "../data/propiedades.json"; // ⬅️ BORRADO
-import { useNavigation, useFocusEffect, RouteProp } from "@react-navigation/native"; // 2. Importamos useFocusEffect
+import { useNavigation, useFocusEffect, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/StackNavigation";
-// import AsyncStorage from "@react-native-async-storage/async-storage"; // ⬅️ BORRADO (el context se encarga)
-import { useAuth } from "../context/AuthContext"; // 3. ¡IMPORTAMOS EL CONTEXTO!
+import { useAuth } from "../context/AuthContext";
 import { Propiedad } from "../types/Propiedad";
 
 const imagenes: Record<string, any> = {
@@ -29,8 +27,7 @@ const imagenes: Record<string, any> = {
   "/img/propiedades/9/IMG1.jpg": require("../assets/propiedades/9/IMG1.jpg"),
 };
 
-// 5. Definimos la URL de la API
-const API_URL = "http://192.168.0.5:8080";
+const API_URL = "http://172.20.10.2:8080";
 
 type MenuAnfitrionNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -40,7 +37,6 @@ type MenuAnfitrionNavigationProp = StackNavigationProp<
 export const MenuAnfitrionScreen: React.FC = () => {
   const navigation = useNavigation<MenuAnfitrionNavigationProp>();
 
-  // 6. Obtenemos el token y la función logout del contexto
   const { token, logout } = useAuth();
 
   const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
@@ -48,9 +44,9 @@ export const MenuAnfitrionScreen: React.FC = () => {
     null
   );
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null); // Estado para errores
+  const [error, setError] = useState<string | null>(null);
 
-  // --- 7. Cargar propiedades (TODA LA LÓGICA ANTIGUA REEMPLAZADA) ---
+  // Cargar propiedades
   const cargarPropiedades = async () => {
     if (!token) return; // No hacer nada si no hay token
 
@@ -62,7 +58,7 @@ export const MenuAnfitrionScreen: React.FC = () => {
       const response = await fetch(`${API_URL}/api/propiedades/mis-propiedades`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`, // ¡Enviamos el token!
+          'Authorization': `Bearer ${token}`, // Enviamos el token
         },
       });
 
@@ -86,21 +82,20 @@ export const MenuAnfitrionScreen: React.FC = () => {
     }
   };
 
-  // 8. Usamos 'useFocusEffect' para recargar cada vez que vemos la pantalla
+  // 'useFocusEffect' para recargar cada vez que vemos la pantalla
   useFocusEffect(
     useCallback(() => {
       cargarPropiedades();
     }, [token]) // Solo se recalcula si el token cambia
   );
 
-  // --- 9. Dar de baja propiedad --- PARA WEB
+  // Dar de baja propiedad
   const darDeBaja = async (id: number) => {
     if (!token) {
       Alert.alert("Error", "No estás autenticado.");
       return;
     }
 
-    // 1. Reemplazamos 'window.confirm' por 'Alert.alert' nativo
     Alert.alert(
       "Confirmar Baja",
       "¿Seguro que deseas eliminar esta propiedad? Esta acción no se puede deshacer.",
@@ -108,11 +103,10 @@ export const MenuAnfitrionScreen: React.FC = () => {
         { text: "Cancelar", style: "cancel" },
         {
           text: "Eliminar",
-          style: "destructive", // Color rojo en nativo
+          style: "destructive",
           onPress: async () => {
             setLoading(true);
             try {
-              // 2. Llamamos a la API (tu lógica está perfecta)
               const response = await fetch(`${API_URL}/api/propiedades/${id}`, {
                 method: 'DELETE',
                 headers: {
@@ -136,7 +130,6 @@ export const MenuAnfitrionScreen: React.FC = () => {
                 throw new Error("No se pudo eliminar la propiedad.");
               }
 
-              // 3. ¡Éxito!
               Alert.alert("Éxito", "Propiedad eliminada correctamente.");
               setPropiedades(prev => prev.filter((p) => p.id !== id));
               setPropSeleccionada(null); // Limpiamos la selección
@@ -152,13 +145,11 @@ export const MenuAnfitrionScreen: React.FC = () => {
     );
   };
 
-  // --- Editar propiedad ---
-  // (Tu lógica de navegación está perfecta y no necesita cambios)
+  // Editar propiedad
   const editarPropiedad = (prop: Propiedad) => {
     navigation.navigate("MenuEditar", { propiedad: prop });
   };
 
-  // (Tu 'if (loading)' está perfecto y no necesita cambios)
   if (loading) {
     return (
       <View
@@ -181,7 +172,7 @@ export const MenuAnfitrionScreen: React.FC = () => {
         </View>
 
         <View style={styles.controls}>
-          {/* ... (Botones de navegación) ... */}
+          {/* Botones de navegación */}
           <TouchableOpacity style={[styles.button, styles.activeButton]}>
             <Text style={styles.buttonText}>Menú principal</Text>
           </TouchableOpacity>
@@ -211,15 +202,14 @@ export const MenuAnfitrionScreen: React.FC = () => {
       </View>
 
       {/* MAIN */}
-      {/* 1. LÓGICA CONDICIONAL */}
+      {/* LÓGICA CONDICIONAL */}
       {propSeleccionada === null ? (
 
-        // --- VISTA DE LISTA ---
+        // VISTA DE LISTA
         <ScrollView
           style={styles.cardArea}
           contentContainerStyle={styles.cardContent}
         >
-          {/* (Tu JSX de 'error' y 'lista vacía' queda igual) */}
           {error && <Text style={styles.detailEmpty}>Error: {error}</Text>}
           {!loading && !error && propiedades.length === 0 && (
             <Text style={styles.detailEmpty}>
@@ -230,8 +220,8 @@ export const MenuAnfitrionScreen: React.FC = () => {
           {propiedades.map((p) => (
             <TouchableOpacity
               key={p.id}
-              style={styles.card} // El borde seleccionado ya no es necesario
-              onPress={() => setPropSeleccionada(p)} // ⬅️ Muestra el detalle
+              style={styles.card}
+              onPress={() => setPropSeleccionada(p)}
             >
               <Text style={styles.address}>{p.titulo}</Text>
               <Text style={styles.addressDetail}>{p.direccion}</Text>
@@ -242,7 +232,7 @@ export const MenuAnfitrionScreen: React.FC = () => {
               <View style={styles.actions}>
                 <TouchableOpacity
                   style={styles.seeBtn}
-                  onPress={() => setPropSeleccionada(p)} // ⬅️ Muestra el detalle
+                  onPress={() => setPropSeleccionada(p)}
                 >
                   <Text style={styles.seeBtnText}>Ver detalles</Text>
                 </TouchableOpacity>
@@ -253,7 +243,7 @@ export const MenuAnfitrionScreen: React.FC = () => {
 
       ) : (
 
-        // --- VISTA DE DETALLE ---
+        // VISTA DE DETALLE
         <View style={styles.detail}>
           <>
             <Text style={styles.detailTitle}>{propSeleccionada.titulo}</Text>
@@ -264,7 +254,6 @@ export const MenuAnfitrionScreen: React.FC = () => {
             />
             <Text style={styles.detailSubtitle}>Descripción:</Text>
             <ScrollView style={{ flex: 1 }}>
-              {/* (Tu JSX de descripción y servicios queda igual) */}
               <Text style={styles.detailItem}>
                 {propSeleccionada.descripcion}
               </Text>
@@ -280,7 +269,6 @@ export const MenuAnfitrionScreen: React.FC = () => {
               )}
             </ScrollView>
 
-            {/* 2. FOOTER ACTUALIZADO CON 3 BOTONES */}
             <View style={styles.footer}>
               <TouchableOpacity
                 style={styles.btnPrimary}
@@ -296,10 +284,9 @@ export const MenuAnfitrionScreen: React.FC = () => {
                 <Text style={styles.btnGhostText}>Dar de baja</Text>
               </TouchableOpacity>
 
-              {/* 3. ¡BOTÓN AÑADIDO PARA VOLVER! */}
               <TouchableOpacity
-                style={styles.btnSecondary} // Usa el nuevo estilo
-                onPress={() => setPropSeleccionada(null)} // ⬅️ Oculta el detalle
+                style={styles.btnSecondary}
+                onPress={() => setPropSeleccionada(null)}
               >
                 <Text style={styles.btnText}>Volver</Text>
               </TouchableOpacity>

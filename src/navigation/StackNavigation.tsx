@@ -40,7 +40,7 @@ const StackNavigator = () => {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {token == null ? (
-                //STACK SI NO ESTÁ LOGUEADO ---
+                // STACK SI NO ESTÁ LOGUEADO
                 // Si no hay token, solo mostramos la pantalla de Login
                 <>
                     <Stack.Screen name="Login" component={LoginScreen} />
@@ -54,17 +54,15 @@ const StackNavigator = () => {
                     <Stack.Screen name="MenuMiCuenta" component={MenuMiCuentaScreen} />
                     <Stack.Screen name="MenuAlquilar" component={MenuAlquilarScreen} />
                     <Stack.Screen name="MenuPago" component={MenuPagoScreen} />
-                    {/* Aquí puedes agregar más pantallas de Huesped */}
                 </>
             ) : (
-                // --- STACK SI ES ROL "ANFITRION" (o cualquier otro rol) ---
+                // --- STACK SI ES ROL "ANFITRION" ---
                 <>
                     <Stack.Screen name="MenuAnfitrion" component={MenuAnfitrionScreen} />
                     <Stack.Screen name="MenuEditar" component={MenuEditarScreen} />
                     <Stack.Screen name="MenuGestionar" component={MenuGestionarScreen} />
                     <Stack.Screen name="MenuMiCuentaA" component={MenuMiCuentaAnfitrionScreen} />
                     <Stack.Screen name="MenuPublicar" component={MenuPublicarScreen} />
-                    {/* Aquí puedes agregar más pantallas de Anfitrion */}
                 </>
             )}
         </Stack.Navigator>

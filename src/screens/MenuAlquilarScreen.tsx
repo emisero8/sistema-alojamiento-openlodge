@@ -56,7 +56,7 @@ export const MenuAlquilarScreen: React.FC<Props> = ({ navigation, route }) => {
   const [mostrarPickerIngreso, setMostrarPickerIngreso] = useState(false);
   const [mostrarPickerEgreso, setMostrarPickerEgreso] = useState(false);
 
-  // fix p/que cuando llamo desde Web anden las alertas
+  // Fix para que funcionen las alertas desde Web
   const showAlert = (title: string, message: string) => {
     if (Platform.OS === "web") {
       window.alert(`${title}\n\n${message}`);
@@ -90,7 +90,7 @@ export const MenuAlquilarScreen: React.FC<Props> = ({ navigation, route }) => {
       return showAlert("Error", "Debe reservar al menos 1 noche");
     }
 
-    // 9. Creamos el objeto 'ReservaParcial' para enviar a la pantalla de Pago
+    // Creamos el objeto 'ReservaParcial' para enviar a la pantalla de Pago
     const reservaParcial = {
       propiedadId: propiedad.id,
       fechaInicio: fechaIngreso.toISOString().split("T")[0], // Formato "YYYY-MM-DD"
@@ -108,7 +108,6 @@ export const MenuAlquilarScreen: React.FC<Props> = ({ navigation, route }) => {
           text: "Confirmar",
           onPress: () => {
             console.log("Reserva confirmada:", reservaParcial);
-            // @ts-ignore
             navigation.navigate("MenuPago", { reserva: reservaParcial }); 
           },
         },

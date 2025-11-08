@@ -19,7 +19,7 @@ import { useAuth } from "../context/AuthContext";
 import { Propiedad, Servicio } from "../types/Propiedad";
 
 // Define la URL de la API
-const API_URL = 'http://192.168.0.5:8080';
+const API_URL = 'http://172.20.10.2:8080';
 
 // Define el tipo de los parámetros de la ruta
 type MenuEditarRouteProp = RouteProp<RootStackParamList, 'MenuEditar'>;
@@ -159,14 +159,12 @@ export const MenuEditarScreen: React.FC = () => {
 
     return (
         <ScrollView style={[styles.page, { height: "100vh" } as any]} contentContainerStyle={{ paddingBottom: 40 }}>
-            {/* HEADER (Tu header queda igual, pero conecta el logout) */}
             <View style={styles.header}>
                 <View style={styles.logoContainer}>
-                    <Image source={require("../assets/logoTerminado.png")} style={styles.logo} />
-                    <Text style={styles.brandName}>OpenLodge</Text>
+                    <Image source={require("../assets/logoTerminado.png")} style={styles.logo}
+                    /><Text style={styles.brandName}>OpenLodge</Text>
                 </View>
                 <View style={styles.controls}>
-                    {/* ... (botones de navegación) ... */}
                     <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
                         <Text style={styles.logoutText}>Cerrar sesión</Text>
                     </TouchableOpacity>
@@ -189,7 +187,7 @@ export const MenuEditarScreen: React.FC = () => {
                     onChangeText={setDireccion}
                 />
 
-                {/* IMAGEN (Simplificado a un TextInput) */}
+                {/* IMAGEN */}
                 <Text style={styles.label}>URL de Imagen Principal:</Text>
                 <TextInput
                     style={styles.input}
@@ -207,15 +205,15 @@ export const MenuEditarScreen: React.FC = () => {
                             <TouchableOpacity
                                 key={s.id}
                                 style={[
-                                    styles.servicioItem, // Asumo que tienes 'servicioBtn' en tus estilos
-                                    serviciosSeleccionados[s.id] && styles.servicioActivo, // y 'servicioBtnActive'
+                                    styles.servicioItem,
+                                    serviciosSeleccionados[s.id] && styles.servicioActivo,
                                 ]}
                                 onPress={() => toggleServicio(s.id)}
                             >
                                 <Text
                                     style={[
-                                        styles.servicioText, // y 'servicioText'
-                                        serviciosSeleccionados[s.id] && styles.servicioTextActivo, // y 'servicioTextActive'
+                                        styles.servicioText,
+                                        serviciosSeleccionados[s.id] && styles.servicioTextActivo,
                                     ]}
                                 >
                                     {s.nombre}
@@ -232,8 +230,6 @@ export const MenuEditarScreen: React.FC = () => {
                     onChangeText={setNumeroHuespedes}
                     keyboardType="numeric"
                 />
-
-                {/* Campos 'Desde' y 'Hasta' eliminados */}
 
                 <Text style={styles.label}>Descripción:</Text>
                 <TextInput

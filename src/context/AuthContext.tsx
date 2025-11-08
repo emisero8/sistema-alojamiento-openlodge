@@ -2,26 +2,24 @@ import React, { createContext, useState, useEffect, useContext, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, ActivityIndicator, View } from 'react-native';
 
-// 1. DEFINE LA IP DE TU API (¡la misma que en LoginScreen!)
-//const API_URL = "http://localhost:8080";
-const API_URL = "http://192.168.0.5:8080";
+// Define la IP de la API
+const API_URL = "http://172.20.10.2:8080";
 
-// 2. Define la "forma" de tu contexto
 interface AuthContextType {
     token: string | null;
     rol: string | null;
     nombre: string | null;
     apellido: string | null;
     email: string | null;
-    isLoading: boolean; // Para mostrar una pantalla de carga al inicio
+    isLoading: boolean; 
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
 }
 
-// 3. Crea el Contexto
+// Crea el Contexto
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 4. Define el "Proveedor" (el componente que envolverá tu app)
+// Define el "Proveedor"
 interface AuthProviderProps {
     children: ReactNode;
 }
@@ -32,9 +30,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [nombre, setNombre] = useState<string | null>(null);
     const [apellido, setApellido] = useState<string | null>(null);
     const [email, setEmail] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true); // Empezamos cargando
+    const [isLoading, setIsLoading] = useState(true);
 
-    // 5. Función para comprobar si hay un token al abrir la app
+    // Función para comprobar si hay un token al abrir la app
     useEffect(() => {
         const loadToken = async () => {
             try {
@@ -61,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loadToken();
     }, []);
 
-    // 6. Función de Login (¡AHORA LA MANEJA EL CONTEXTO!)
+    // Función de Login
     const login = async (emailInput: string, password: string) => {
         try {
             const response = await fetch(`${API_URL}/api/auth/login`, {
@@ -103,7 +101,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
-    // 7. Función de Logout
+    // Función de Logout
     const logout = async () => {
         setToken(null);
         setRol(null);
@@ -120,7 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         ]);
     };
 
-    // 8. Si estamos cargando el token, muestra un spinner
+    // Si estamos cargando el token, muestra un spinner
     if (isLoading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -129,10 +127,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         );
     }
 
-    // 9. Provee los valores al resto de la app
+    // Provee los valores al resto de la app
     return (
         <AuthContext.Provider value={{ 
-            token, rol, nombre, apellido, email, // ⬅️ Pasamos los nuevos valores
+            token, rol, nombre, apellido, email,
             isLoading, login, logout 
         }}>
             {children}
@@ -140,7 +138,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     );
 };
 
-// 10. Hook personalizado para usar el contexto fácilmente
+// Hook para usar el contexto fácilmente
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {

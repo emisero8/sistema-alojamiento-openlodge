@@ -15,14 +15,14 @@ interface Props {
   route: MenuPagoRouteProp;
 }
 
-const API_URL = "http://192.168.0.5:8080";
+const API_URL = "http://172.20.10.2:8080";
 
 interface ReservaParcial {
   propiedadId: number;
   fechaInicio: string; // "YYYY-MM-DD"
   fechaFin: string;    // "YYYY-MM-DD"
   notas: string;
-  propiedadCompleta: Propiedad; // La propiedad para calcular costos
+  propiedadCompleta: Propiedad;
 }
 
 const imagenes: Record<string, any> = {
@@ -38,7 +38,6 @@ const imagenes: Record<string, any> = {
 };
 
 export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
-  // @ts-ignore (Ignoramos el tipo 'any' de la navegación)
   const { reserva }: { reserva: ReservaParcial } = route.params;
   const { propiedadCompleta } = reserva;
 
@@ -48,7 +47,7 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
   const [imagenActual, setImagenActual] = useState(0);
 
   const [medioPago, setMedioPago] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false); // Para el botón de pago
+  const [loading, setLoading] = useState(false);
   const [costos, setCostos] = useState<{
     noches: number;
     costoAlojamiento: number;
@@ -56,7 +55,6 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
     total: number;
   } | null>(null);
 
-  // fix p/que cuando llamo desde Web anden las alertas
   const showAlert = (title: string, message: string) => {
     if (Platform.OS === "web") {
       window.alert(`${title}\n\n${message}`);
@@ -71,7 +69,7 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
       const ingreso = new Date(reserva.fechaInicio);
       const egreso = new Date(reserva.fechaFin);
 
-      // Sumamos 1 día al egreso para el cálculo (ej: 10-Nov a 11-Nov es 1 noche)
+      // Sumamos 1 día al egreso para el cálculo
       egreso.setDate(egreso.getDate() + 1);
 
       const noches = Math.round(
@@ -80,7 +78,6 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
 
       const costoAlojamiento = noches * propiedadCompleta.precioPorNoche;
 
-      // Los servicios ahora son objetos
       let costoServiciosTotal = 0;
       if (propiedadCompleta.servicios && propiedadCompleta.servicios.length > 0) {
         propiedadCompleta.servicios.forEach((servicio: Servicio) => {
@@ -95,7 +92,7 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
       console.error("Error calculando costos:", error);
       showAlert("Error", "No se pudo calcular el costo de la reserva.");
     }
-  }, [reserva]); // Se recalcula si la reserva cambia
+  }, [reserva]);
 
   // Función de Pago
   const handlePago = async () => {
@@ -106,12 +103,11 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
       return showAlert("Error", "No se pudo calcular el costo o no estás autenticado.");
     }
 
-    // 8. Creamos el objeto 'ReservaRequest' que espera el backend
     const reservaParaAPI = {
       propiedadId: reserva.propiedadId,
       fechaInicio: reserva.fechaInicio,
       fechaFin: reserva.fechaFin,
-      precioTotal: costos.total, // El precio que calculamos
+      precioTotal: costos.total,
       notas: reserva.notas,
     };
 
@@ -121,7 +117,7 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // ¡Enviamos el token!
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(reservaParaAPI),
       });
@@ -129,9 +125,7 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
       if (response.status === 409) { // 409 Conflict
         const errorMessage = await response.text();
         showAlert("Reserva Fallida", errorMessage || "Las fechas seleccionadas ya no están disponibles.");
-        // Opcional: navegar de vuelta a la pantalla anterior
-        // navigation.goBack();
-        return; // No continuar
+        return;
       }
 
       if (response.status === 403) {
@@ -184,8 +178,6 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
         <Text style={styles.title}>{propiedadCompleta.titulo}</Text>
 
         {/* Imagen */}
-
-        {/* Carrusel */}
         {imagenesPropiedad.length > 0 && (
           <View style={styles.carousel}>
             <TouchableOpacity
@@ -208,7 +200,7 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
 
         <View style={styles.resumenContainer}>
           <View style={styles.resumenBox}>
-            {/* --- Resumen de la reserva --- */}
+            {/* Resumen de la reserva */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Resumen de la reserva</Text>
               <Text>Cantidad de inquilinos: {propiedadCompleta.numeroHuespedes}</Text>
@@ -228,7 +220,7 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
           </View>
 
           <View style={styles.resumenBox}>
-            {/* --- Resumen de costos --- */}
+            {/* Resumen de costos */}
             {costos ? (
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Resumen de costos</Text>
@@ -237,7 +229,6 @@ export const MenuPagoScreen: React.FC<Props> = ({ navigation, route }) => {
                   {costos.costoAlojamiento}
                 </Text>
                 <Text>Costo Servicios: ${costos.costoServiciosTotal}</Text>
-                {/* (Detalle de servicios eliminado por simplicidad) */}
                 <Text style={{ marginTop: 6, fontWeight: "bold" }}>
                   Total a pagar: ${costos.total}
                 </Text>

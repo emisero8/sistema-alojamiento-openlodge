@@ -20,16 +20,14 @@ type LoginScreenNavigationProp = StackNavigationProp<
      "Login"
 >;
 
-// 4. La API_URL también se fue (ahora está en el contexto)
-// const API_URL = "http://localhost:8080";
+// La API_URL  está en el contexto
 
 const LoginScreen: React.FC = () => {
     const [correo, setCorreo] = useState("");
     const [clave, setClave] = useState("");
     const [cargando, setCargando] = useState(false);
-     const navigation = useNavigation<LoginScreenNavigationProp>();
-
-    // 5. Obtenemos la función 'login' de nuestro AuthContext
+    const navigation = useNavigation<LoginScreenNavigationProp>();
+    
     const { login } = useAuth();
 
     const handleLogin = async () => {
@@ -38,15 +36,10 @@ const LoginScreen: React.FC = () => {
             return;
         }
 
-        setCargando(true); // Empezamos a cargar
+        setCargando(true);
 
         try {
-            // 6. ¡Llamamos a la función 'login' del contexto!
-            // Esta función se encarga de TODO:
-            // - Hacer el fetch
-            // - Mostrar alertas de error
-            // - Guardar el token en AsyncStorage
-            // - Actualizar el estado global (token y rol)
+            // Llamamos a la función login del contexto
             await login(correo, clave);
 
         } catch (error) {
@@ -55,14 +48,13 @@ const LoginScreen: React.FC = () => {
             Alert.alert("Error", "Ocurrió un error inesperado.");
         } finally {
             // Si el login falló, el contexto ya mostró la alerta
-            // y aquí simplemente detenemos el spinner.
+            // y aca detenemos el spinner
             setCargando(false);
         }
     };
 
     return (
         <View style={styles.container}>
-            {/* 7. El JSX (toda la parte visual) queda EXACTAMENTE IGUAL */}
             <View style={styles.loginBox}>
                 <Text style={styles.title}>Sistema de Reservas</Text>
 

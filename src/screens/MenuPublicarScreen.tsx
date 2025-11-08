@@ -8,48 +8,42 @@ import {
     ScrollView,
     Alert,
     ActivityIndicator,
-    StyleSheet, // Usaremos los estilos de tu archivo
+    StyleSheet,
 } from "react-native";
-// import * as ImagePicker from "expo-image-picker"; // ⬅️ Eliminado por ahora
-// import AsyncStorage from "@react-native-async-storage/async-storage"; // ⬅️ Eliminado
-import { styles } from "./styles/MenuPublicarStyles"; // Usamos tus estilos
+import { styles } from "./styles/MenuPublicarStyles";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/StackNavigation";
-import { useAuth } from "../context/AuthContext"; // ⬅️ AÑADIDO
-import { Propiedad, Servicio } from "../types/Propiedad"; // ⬅️ AÑADIDO
+import { useAuth } from "../context/AuthContext";
+import { Propiedad, Servicio } from "../types/Propiedad";
 
 type MenuPublicarNavigationProp = StackNavigationProp<
     RootStackParamList,
     "MenuPublicar"
 >;
 
-// Definimos la URL de la API
-const API_URL = 'http://192.168.0.5:8080';
+const API_URL = 'http://172.20.10.2:8080';
 
 export const MenuPublicarScreen: React.FC = () => {
     const navigation = useNavigation<MenuPublicarNavigationProp>();
-    const { token, logout } = useAuth(); // Obtenemos el token y logout
+    const { token, logout } = useAuth();
 
-    // Estados para el formulario (alineados con la API)
     const [titulo, setTitulo] = useState("");
     const [direccion, setDireccion] = useState("");
     const [descripcion, setDescripcion] = useState("");
     const [precioPorNoche, setPrecioPorNoche] = useState("");
     const [numeroHuespedes, setNumeroHuespedes] = useState("");
 
-    // Estados para cargar y seleccionar servicios
     const [serviciosMaestros, setServiciosMaestros] = useState<Servicio[]>([]);
     const [serviciosSeleccionados, setServiciosSeleccionados] = useState<Record<number, boolean>>({});
 
-    const [loading, setLoading] = useState(false); // Para el botón de publicar
-    const [loadingServicios, setLoadingServicios] = useState(true); // Para cargar los chips
+    const [loading, setLoading] = useState(false);
+    const [loadingServicios, setLoadingServicios] = useState(true);
 
-    // Cargar la lista de servicios maestros al montar la pantalla
+    // Cargar la lista de servicios
     useEffect(() => {
         const cargarServicios = async () => {
             try {
-                // Llamamos al endpoint público que creamos
                 const response = await fetch(`${API_URL}/api/servicios`);
                 if (!response.ok) {
                     throw new Error('No se pudieron cargar los servicios');
@@ -73,7 +67,7 @@ export const MenuPublicarScreen: React.FC = () => {
         }));
     };
 
-    // Función para manejar el envío (reemplaza tu handleGuardar)
+    // Función para manejar el envío
     const handlePublicar = async () => {
         if (!titulo || !direccion || !precioPorNoche || !numeroHuespedes) {
             Alert.alert("Error", "Por favor completa todos los campos.");
@@ -86,11 +80,9 @@ export const MenuPublicarScreen: React.FC = () => {
 
         setLoading(true);
         try {
-            // Formatear los servicios seleccionados al formato que espera el Backend
-            // El backend espera: [ { "id": 1 }, { "id": 2 } ]
             const serviciosParaEnviar = Object.keys(serviciosSeleccionados)
-                .filter(id => serviciosSeleccionados[Number(id)]) // Filtra solo los 'true'
-                .map(id => ({ id: Number(id) })); // Mapea a { id: ... }
+                .filter(id => serviciosSeleccionados[Number(id)])
+                .map(id => ({ id: Number(id) }));
 
             // Crear el objeto de la nueva propiedad
             const nuevaPropiedad = {
@@ -122,8 +114,8 @@ export const MenuPublicarScreen: React.FC = () => {
                 throw new Error(err || 'No se pudo publicar la propiedad.');
             }
 
-            Alert.alert("✅ Éxito", "Propiedad publicada con éxito.");
-            navigation.navigate("MenuAnfitrion"); // Volvemos al menú
+            Alert.alert("Éxito", "Propiedad publicada con éxito.");
+            navigation.navigate("MenuAnfitrion");
 
         } catch (error: any) {
             Alert.alert("Error", error.message || "No se pudo guardar la propiedad.");
@@ -133,7 +125,6 @@ export const MenuPublicarScreen: React.FC = () => {
     };
 
     const cancelar = () => {
-        // Usamos Alert.alert nativo
         Alert.alert(
             "Cancelar",
             "¿Deseas descartar los cambios?",
@@ -152,7 +143,6 @@ export const MenuPublicarScreen: React.FC = () => {
         <ScrollView style={[styles.page, { height: "100vh" } as any]} contentContainerStyle={{ paddingBottom: 40 }}>
             {/* HEADER */}
             <View style={styles.header}>
-                {/* ... (Tu header queda igual) ... */}
                 <View style={styles.logoContainer}>
                     <Image
                         source={require("../assets/logoTerminado.png")}
@@ -160,7 +150,6 @@ export const MenuPublicarScreen: React.FC = () => {
                     /><Text style={styles.brandName}>OpenLodge</Text>
                 </View>
                 <View style={styles.controls}>
-                    {/* ... (Tus botones de navegación) ... */}
                     <TouchableOpacity
                         style={styles.button}
                         onPress={() => navigation.navigate("MenuAnfitrion")}
@@ -171,7 +160,7 @@ export const MenuPublicarScreen: React.FC = () => {
                         style={[styles.button]}
                         onPress={() => navigation.navigate("MenuMiCuentaA")}
                     >
-                        <Text style={[styles.buttonText]}>Historial</Text>
+                        <Text style={[styles.buttonText]}>Mi Cuenta</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.button}
@@ -192,8 +181,6 @@ export const MenuPublicarScreen: React.FC = () => {
 
             {/* FORM */}
             <View style={styles.form}>
-
-                {/* CAMPOS NUEVOS ALINEADOS CON LA API */}
                 <Text style={styles.label}>Título de la Publicación:</Text>
                 <TextInput
                     style={styles.input}
@@ -201,7 +188,6 @@ export const MenuPublicarScreen: React.FC = () => {
                     onChangeText={setTitulo}
                     placeholder="Ej: Hermosa casa de campo con pileta"
                 />
-
                 <Text style={styles.label}>Dirección de la propiedad:</Text>
                 <TextInput
                     style={styles.input}
@@ -209,7 +195,6 @@ export const MenuPublicarScreen: React.FC = () => {
                     onChangeText={setDireccion}
                     placeholder="Ej: Av. Santa Fe 1234"
                 />
-
                 <Text style={styles.label}>Precio por Noche (ARS):</Text>
                 <TextInput
                     style={styles.input}
@@ -218,7 +203,6 @@ export const MenuPublicarScreen: React.FC = () => {
                     onChangeText={setPrecioPorNoche}
                     placeholder="Ej: 50000"
                 />
-
                 <Text style={styles.label}>Cantidad de huéspedes:</Text>
                 <TextInput
                     style={styles.input}
@@ -227,8 +211,7 @@ export const MenuPublicarScreen: React.FC = () => {
                     onChangeText={setNumeroHuespedes}
                     placeholder="Ej: 4"
                 />
-
-                {/* SERVICIOS (CARGADOS DESDE LA API) */}
+                {/* SERVICIOS */}
                 <Text style={styles.label}>Servicios incluidos:</Text>
                 {loadingServicios ? (
                     <ActivityIndicator color="#4caf50" />
@@ -249,14 +232,12 @@ export const MenuPublicarScreen: React.FC = () => {
                                         serviciosSeleccionados[s.id] && styles.servicioTextActive,
                                     ]}
                                 >
-                                    {s.nombre} {/* Usamos el nombre de la API */}
+                                    {s.nombre}
                                 </Text>
                             </TouchableOpacity>
                         ))}
                     </View>
                 )}
-
-                {/* Campos 'Desde' y 'Hasta' eliminados (no están en la API) */}
 
                 <Text style={styles.label}>Descripción:</Text>
                 <TextInput

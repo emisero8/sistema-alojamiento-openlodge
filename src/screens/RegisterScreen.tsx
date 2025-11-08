@@ -19,7 +19,7 @@ type RegisterScreenNavigationProp = StackNavigationProp<
     "Register"
 >;
 
-const API_URL = "http://192.168.0.5:8080";
+const API_URL = "http://172.20.10.2:8080";
 
 type UserRole = "HUESPED" | "ANFITRION";
 
@@ -34,7 +34,7 @@ const RegisterScreen: React.FC = () => {
     const [loading, setLoading] = useState(false);
 
     const handleRegister = async () => {
-        // 5. Validaciones
+        // Validaciones
         if (!nombre || !apellido || !correo || !clave || !rol) {
             Alert.alert("Error", "Por favor complete todos los campos.");
             return;
@@ -43,7 +43,6 @@ const RegisterScreen: React.FC = () => {
         setLoading(true);
 
         try {
-            // 6. ¡Llamada al endpoint de Registro!
             const response = await fetch(`${API_URL}/api/usuarios`, {
                 method: "POST",
                 headers: {
@@ -52,13 +51,13 @@ const RegisterScreen: React.FC = () => {
                 body: JSON.stringify({
                     nombre: nombre,
                     apellido: apellido,
-                    email: correo,    // El backend espera 'email'
-                    password: clave,  // El backend espera 'password'
-                    rol: rol,         // "HUESPED" o "ANFITRION"
+                    email: correo, 
+                    password: clave,
+                    rol: rol,
                 }),
             });
 
-            // 7. Manejo de Errores
+            // Manejo de Errores
             if (response.status === 409) { // 409 Conflict (Email duplicado)
                 Alert.alert("Error", "El email ya se encuentra registrado.");
             } else if (!response.ok) {
@@ -70,7 +69,6 @@ const RegisterScreen: React.FC = () => {
                     "¡Cuenta Creada!",
                     "Tu cuenta ha sido creada exitosamente. Por favor, inicia sesión.",
                     [
-                        // Llevamos al usuario al Login
                         { text: "OK", onPress: () => navigation.navigate("Login") }
                     ]
                 );
@@ -85,7 +83,6 @@ const RegisterScreen: React.FC = () => {
     };
 
     return (
-        // Usamos ScrollView para que no se corte en pantallas chicas
         <ScrollView
             style={styles.container}
             contentContainerStyle={styles.contentContainer}
@@ -94,7 +91,7 @@ const RegisterScreen: React.FC = () => {
             <View style={styles.loginBox}>
                 <Text style={styles.title}>Crear Cuenta</Text>
 
-                {/* --- Selector de Rol --- */}
+                {/* Selector de Rol */}
                 <Text style={styles.label}>Quiero registrarme como:</Text>
                 <View style={styles.roleContainer}>
                     <TouchableOpacity
@@ -121,7 +118,7 @@ const RegisterScreen: React.FC = () => {
                     </TouchableOpacity>
                 </View>
 
-                {/* --- Formulario --- */}
+                {/* Formulario */}
                 <Text style={styles.label}>Nombre</Text>
                 <TextInput
                     style={styles.input}

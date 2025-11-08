@@ -8,12 +8,11 @@ import {
     ActivityIndicator,
 } from "react-native";
 import { styles } from "./styles/MenuMiCuentaAnfitrionStyles";
-// import AsyncStorage from "@react-native-async-storage/async-storage"; // ⬅️ BORRADO
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/StackNavigation";
-import { useAuth } from "../context/AuthContext"; // ⬅️ AÑADIDO
-import { Propiedad } from "../types/Propiedad"; // ⬅️ AÑADIDO
+import { useAuth } from "../context/AuthContext";
+import { Propiedad } from "../types/Propiedad";
 
 const imagenes: Record<string, any> = {
     "/img/propiedades/1/IMG1.jpg": require("../assets/propiedades/1/IMG1.jpg"),
@@ -27,7 +26,7 @@ const imagenes: Record<string, any> = {
     "/img/propiedades/9/IMG1.jpg": require("../assets/propiedades/9/IMG1.jpg"),
 };
 
-const API_URL = "http://192.168.0.5:8080";
+const API_URL = "http://172.20.10.2:8080";
 
 type MenuMiCuentaAnfitrionNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -37,14 +36,12 @@ type MenuMiCuentaAnfitrionNavigationProp = StackNavigationProp<
 export const MenuMiCuentaAnfitrionScreen: React.FC = () => {
     const navigation = useNavigation<MenuMiCuentaAnfitrionNavigationProp>();
 
-    // Obtenemos los datos del Contexto
     const { token, nombre, apellido, email, logout } = useAuth();
 
     const [propiedades, setPropiedades] = useState<Propiedad[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Cargar solo las propiedades (para el contador)
     const cargarPropiedades = async () => {
         if (!token) return;
         setLoading(true);
@@ -94,7 +91,6 @@ export const MenuMiCuentaAnfitrionScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.topControls}>
-                    {/* ... (Botones de navegación) ... */}
                     <TouchableOpacity
                         style={styles.button}
                         onPress={() => navigation.navigate("MenuAnfitrion")}

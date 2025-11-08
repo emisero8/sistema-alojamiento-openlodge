@@ -7,10 +7,8 @@ import { RootStackParamList } from "../navigation/StackNavigation";
 import { Propiedad } from "../types/Propiedad";
 import { useAuth } from "../context/AuthContext";
 
-
-
 // Definimos la URL de la API
-const API_URL = 'http://192.168.0.5:8080';
+const API_URL = 'http://172.20.10.2:8080';
 
 interface UsuarioSimple {
     nombre: string;
@@ -59,21 +57,18 @@ export const MenuGestionarScreen: React.FC = () => {
         }
     };
 
-    // Usamos 'useFocusEffect'
     useFocusEffect(
         useCallback(() => {
             cargarReservas();
         }, [token])
     );
 
-    // Lógica de botones
     const cancelarReserva = (reserva: Reserva) => {
         if (!token) {
             Alert.alert("Error", "No estás autenticado.");
             return;
         }
 
-        // 1. Usamos 'Alert.alert' nativo para confirmar
         Alert.alert(
             "Confirmar Cancelación",
             `¿Seguro que deseas cancelar la reserva de ${reserva.huesped.nombre} en "${reserva.propiedad.titulo}"?`,
@@ -85,7 +80,7 @@ export const MenuGestionarScreen: React.FC = () => {
                     onPress: async () => {
                         setLoading(true);
                         try {
-                            // 2. Llamamos a la API con DELETE
+                            // Llamamos a la API con DELETE
                             const response = await fetch(`${API_URL}/api/reservas/${reserva.id}`, {
                                 method: 'DELETE',
                                 headers: {
@@ -98,12 +93,11 @@ export const MenuGestionarScreen: React.FC = () => {
                                 logout();
                                 return;
                             }
-                            // 204 No Content es el éxito para DELETE
+
                             if (!response.ok && response.status !== 204) {
                                 throw new Error("No se pudo cancelar la reserva.");
                             }
 
-                            // 3. ¡Éxito! Actualizamos el estado local
                             Alert.alert("Éxito", "Reserva cancelada correctamente.");
                             setReservas(prev => prev.filter((r) => r.id !== reserva.id));
 
@@ -128,7 +122,6 @@ export const MenuGestionarScreen: React.FC = () => {
         >
             {/* HEADER */}
             <View style={styles.header}>
-                {/* ... (Tu header queda igual) ... */}
                 <View style={styles.logoContainer}>
                     <Image
                         source={require("../assets/logoTerminado.png")}
@@ -178,7 +171,6 @@ export const MenuGestionarScreen: React.FC = () => {
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={({ item, index }) => (
                             <View style={styles.solicitud}>
-                                {/* 7. ¡Datos de la API! */}
                                 <Text style={styles.propiedad}>{item.propiedad.titulo}</Text>
                                 <Text style={styles.text}>Huésped: {item.huesped.nombre} {item.huesped.apellido}</Text>
                                 <Text style={styles.text}>

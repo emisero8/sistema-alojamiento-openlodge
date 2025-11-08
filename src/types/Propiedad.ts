@@ -1,12 +1,3 @@
-//export interface Propiedad {
-//    id: string;
-//    title: string;
-//    img: string;
-//    details: string[];
-//    servicios: string[];
-//    price: number;
-//}
-
 // Define el tipo para el objeto Servicio
 export interface Servicio {
     id: number;
@@ -14,7 +5,7 @@ export interface Servicio {
     costo: number;
 }
 
-// Define el tipo para la Propiedad (basado en la API)
+// Define el tipo para la Propiedad
 export interface Propiedad {
     id: number;
     titulo: string;
@@ -23,5 +14,5 @@ export interface Propiedad {
     precioPorNoche: number;
     numeroHuespedes: number;
     imagenPrincipalUrl: string;
-    servicios: Servicio[]; // Ahora es un array de objetos Servicio
+    servicios: Servicio[];
 }
